@@ -158,38 +158,38 @@
                 </button>
             </div>
 
-            <!-- Transaction Type Options -->
+    <!-- Transaction Type Options -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" data-i18n="selectType">Select Transaction Type</label>
                 <div class="grid grid-cols-2 gap-2.5">
                     <!-- 一般顧客 - 單杯 -->
-                    <button type="button" onclick="selectSaleType('p1')" id="type-p1" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
-                        <span class="text-xs font-bold text-slate-900"><i class="fa-solid fa-beer-mug-empty text-amber-600 mr-1"></i> <span data-i18n="typeP1">一般顧客單杯 (500ml)</span></span>
-                        <span id="price-label-p1" class="text-xs text-amber-700 font-extrabold mt-1">MOP 0</span>
+                    <button type="button" ontouchend="selectSaleType('p1'); event.preventDefault();" onclick="selectSaleType('p1')" id="type-p1" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
+                        <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-beer-mug-empty text-amber-600 mr-1"></i> <span data-i18n="typeP1">一般顧客單杯 (500ml)</span></span>
+                        <span id="price-label-p1" class="text-xs text-amber-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
                     <!-- 一般顧客 - 兩杯 -->
-                    <button type="button" onclick="selectSaleType('p2')" id="type-p2" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
-                        <span class="text-xs font-bold text-slate-900"><i class="fa-solid fa-wine-glass-drop text-amber-600 mr-1"></i> <span data-i18n="typeP2">一般顧客兩杯優惠 (500ml)</span></span>
-                        <span id="price-label-p2" class="text-xs text-amber-700 font-extrabold mt-1">MOP 0</span>
+                    <button type="button" ontouchend="selectSaleType('p2'); event.preventDefault();" onclick="selectSaleType('p2')" id="type-p2" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
+                        <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-wine-glass-drop text-amber-600 mr-1"></i> <span data-i18n="typeP2">一般顧客兩杯優惠 (500ml)</span></span>
+                        <span id="price-label-p2" class="text-xs text-amber-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
                     <!-- VIP - 單杯 (紫色視覺區隔) -->
-                    <button type="button" onclick="selectSaleType('p3')" id="type-p3" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
-                        <span class="text-xs font-bold text-purple-950"><i class="fa-solid fa-crown text-purple-600 mr-1"></i> <span data-i18n="typeP3">VIP 單杯 (500ml)</span></span>
-                        <span id="price-label-p3" class="text-xs text-purple-800 font-extrabold mt-1">MOP 0</span>
+                    <button type="button" ontouchend="selectSaleType('p3'); event.preventDefault();" onclick="selectSaleType('p3')" id="type-p3" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 active:bg-purple-200 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
+                        <span class="text-xs font-bold text-purple-950 pointer-events-none"><i class="fa-solid fa-crown text-purple-600 mr-1"></i> <span data-i18n="typeP3">VIP 單杯 (500ml)</span></span>
+                        <span id="price-label-p3" class="text-xs text-purple-800 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
                     <!-- VIP - 兩杯 (紫色視覺區隔) -->
-                    <button type="button" onclick="selectSaleType('p4')" id="type-p4" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
-                        <span class="text-xs font-bold text-purple-950"><i class="fa-solid fa-award text-purple-600 mr-1"></i> <span data-i18n="typeP4">VIP 兩杯優惠 (500ml)</span></span>
-                        <span id="price-label-p4" class="text-xs text-purple-800 font-extrabold mt-1">MOP 0</span>
+                    <button type="button" ontouchend="selectSaleType('p4'); event.preventDefault();" onclick="selectSaleType('p4')" id="type-p4" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 active:bg-purple-200 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
+                        <span class="text-xs font-bold text-purple-950 pointer-events-none"><i class="fa-solid fa-award text-purple-600 mr-1"></i> <span data-i18n="typeP4">VIP 兩杯優惠 (500ml)</span></span>
+                        <span id="price-label-p4" class="text-xs text-purple-800 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
                     <!-- FREE 330ml -->
-                    <button type="button" onclick="selectSaleType('p5')" id="type-p5" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-emerald-50 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm col-span-2">
-                        <span class="text-xs font-bold text-emerald-800"><i class="fa-solid fa-gift text-emerald-600 mr-1"></i> <span data-i18n="typeP5">FREE 330ml</span></span>
-                        <span id="price-label-p5" class="text-xs text-emerald-700 font-extrabold mt-1">MOP 0</span>
+                    <button type="button" ontouchend="selectSaleType('p5'); event.preventDefault();" onclick="selectSaleType('p5')" id="type-p5" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-emerald-50 active:bg-emerald-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm col-span-2">
+                        <span class="text-xs font-bold text-emerald-800 pointer-events-none"><i class="fa-solid fa-gift text-emerald-600 mr-1"></i> <span data-i18n="typeP5">FREE 330ml</span></span>
+                        <span id="price-label-p5" class="text-xs text-emerald-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
                 </div>
             </div>
