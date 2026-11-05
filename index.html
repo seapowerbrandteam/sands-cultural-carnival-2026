@@ -53,6 +53,18 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
+
+        /* 5. 防止繁體中文長文字溢出邊框的修復樣式 */
+        button, h1, h2, h3, span, p, label {
+            word-break: break-word; /* 避免長字串或中文過長撐破邊界 */
+            overflow-wrap: break-word;
+        }
+
+        /* 確保交易選擇按鈕內的文字能舒適換行且不會突格 */
+        .sale-type-btn {
+            white-space: normal !important;
+            word-break: break-word;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-white">
