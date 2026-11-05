@@ -207,15 +207,15 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" data-i18n="selectType">Select Transaction Type</label>
                 <div class="grid grid-cols-2 gap-2.5">
-                    <!-- 一般顧客 - 單杯 -->
+                    <!-- 一般 - 單杯 -->
                     <button type="button" onclick="selectSaleType('p1')" id="type-p1" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
-                        <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-beer-mug-empty text-amber-600 mr-1"></i> <span data-i18n="typeP1">一般顧客單杯 (500ml)</span></span>
+                        <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-beer-mug-empty text-amber-600 mr-1"></i> <span data-i18n="typeP1">一般單杯 (500ml)</span></span>
                         <span id="price-label-p1" class="text-xs text-amber-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
-                    <!-- 一般顧客 - 兩杯 -->
+                    <!-- 一般 - 兩杯 -->
                     <button type="button" onclick="selectSaleType('p2')" id="type-p2" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
-                        <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-wine-glass-drop text-amber-600 mr-1"></i> <span data-i18n="typeP2">一般顧客兩杯優惠 (500ml)</span></span>
+                        <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-wine-glass-drop text-amber-600 mr-1"></i> <span data-i18n="typeP2">一般兩杯優惠 (500ml)</span></span>
                         <span id="price-label-p2" class="text-xs text-amber-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
@@ -362,8 +362,8 @@
                 grandTotalSub: "所有有效交易紀錄合計",
                 productList: "產品清單",
                 selectType: "選擇交易類型",
-                typeP1: "一般顧客單杯 500ml",
-                typeP2: "一般顧客兩杯優惠 500ml",
+                typeP1: "一般單杯 500ml",
+                typeP2: "一般兩杯優惠 500ml",
                 typeP3: "VIP 單杯 500ml",
                 typeP4: "VIP 兩杯優惠 500ml",
                 typeP5: "FREE 330ml",
@@ -1036,8 +1036,8 @@
                     "code": item.code,
                     "Description - EN": item.descEn,
                     "Description - CH": item.descZh,
-                    "一般顧客單杯 500ml": cP1,
-                    "一般顧客兩杯優惠 500ml": cP2,
+                    "一般單杯 500ml": cP1,
+                    "一般兩杯優惠 500ml": cP2,
                     "VIP 單杯 500ml": cP3,
                     "VIP 兩杯優惠 500ml": cP4,
                     "FREE 330ml": cP5,
@@ -1056,8 +1056,8 @@
 
                 let typeLabelName = log.type;
                 let unitPrice = 0;
-                if (log.type === 'p1') { typeLabelName = '一般顧客單杯 (500ml)'; unitPrice = product.p1 || 0; }
-                if (log.type === 'p2') { typeLabelName = '一般顧客兩杯優惠 (500ml)'; unitPrice = product.p2 || 0; }
+                if (log.type === 'p1') { typeLabelName = '一般單杯 (500ml)'; unitPrice = product.p1 || 0; }
+                if (log.type === 'p2') { typeLabelName = '一般兩杯優惠 (500ml)'; unitPrice = product.p2 || 0; }
                 if (log.type === 'p3') { typeLabelName = 'VIP 單杯 (500ml)'; unitPrice = product.p3 || 0; }
                 if (log.type === 'p4') { typeLabelName = 'VIP 兩杯優惠 (500ml)'; unitPrice = product.p4 || 0; }
                 if (log.type === 'p5') { typeLabelName = 'FREE 330ml'; unitPrice = product.p5 || 0; }
