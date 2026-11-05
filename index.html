@@ -11,42 +11,18 @@
     <!-- SheetJS for Excel Export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* 1. 全局禁止 touch 雙擊放大與拖曳延遲 */
+        /* 1. 全局禁止 touch 雙擊放大與拖曳延遲，保持標準點擊體驗防止滑動誤觸 */
         * {
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
-            box-sizing: border-box; /* 確保 padding 與 border 不會擠開寬度 */
+            box-sizing: border-box;
         }
-
-        /* 2. 徹底鎖定 html 與 body，強行禁止任何水平與垂直滾動 */
-        html, body {
-            width: 100% !important;
-            max-width: 100% !important;
-            height: 100% !important;
-            overflow-x: hidden !important; /* 核心關鍵：徹底隱藏水平滾動 */
-            overflow-y: hidden !important;
-            position: fixed;
-            left: 0;
-            top: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-        }
-
-        /* 3. 主容器內部獨立處理垂直滾動，同時限制寬度不超出螢幕 */
-        #app {
-            width: 100% !important;
-            max-width: 100% !important;
-            height: 100vh;
-            overflow-x: hidden !important; /* 確保主容器也不會橫向滾動 */
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* 4. 微調輔助樣式 */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         .touch-btn { min-height: 48px; min-width: 48px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 隱藏 Input type=number 原生按鈕 */
+        /* 隱藏 Input type=number 的原生上下微調按鈕 */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; 
@@ -54,6 +30,28 @@
         }
         input[type=number] {
             -moz-appearance: textfield;
+        }
+
+        /* 鎖定 body 與 html，禁止水平滑動與頁面整體亂滾 */
+        html, body {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100% !important;
+            overflow-x: hidden !important;
+            overflow-y: hidden !important;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        /* 讓主容器內部可以正常獨立捲動 */
+        #app {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh;
+            overflow-x: hidden !important;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
@@ -150,6 +148,22 @@
                     </div>
                 </section>
 
+                <!-- 新增：全場累積總金額看板 (Grand Total Sales Banner) -->
+                <section class="bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl p-4 shadow-md flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center">
+                            <i class="fa-solid fa-sack-dollar text-xl text-white"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-amber-100 block" data-i18n="grandTotalLabel">Grand Total Revenue</span>
+                            <span class="text-xs text-amber-100 font-medium" data-i18n="grandTotalSub">All Active Transactions</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span id="grand-total-amount" class="text-2xl font-black tracking-tight block">MOP 0</span>
+                    </div>
+                </section>
+
                 <!-- PRODUCT LIST -->
                 <section class="flex-1 space-y-3.5">
                     <div class="flex items-center justify-between px-1">
@@ -183,31 +197,31 @@
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" data-i18n="selectType">Select Transaction Type</label>
                 <div class="grid grid-cols-2 gap-2.5">
                     <!-- 一般顧客 - 單杯 -->
-                    <button type="button" ontouchend="selectSaleType('p1'); event.preventDefault();" onclick="selectSaleType('p1')" id="type-p1" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
+                    <button type="button" onclick="selectSaleType('p1')" id="type-p1" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
                         <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-beer-mug-empty text-amber-600 mr-1"></i> <span data-i18n="typeP1">一般顧客單杯 (500ml)</span></span>
                         <span id="price-label-p1" class="text-xs text-amber-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
                     <!-- 一般顧客 - 兩杯 -->
-                    <button type="button" ontouchend="selectSaleType('p2'); event.preventDefault();" onclick="selectSaleType('p2')" id="type-p2" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
+                    <button type="button" onclick="selectSaleType('p2')" id="type-p2" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
                         <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-wine-glass-drop text-amber-600 mr-1"></i> <span data-i18n="typeP2">一般顧客兩杯優惠 (500ml)</span></span>
                         <span id="price-label-p2" class="text-xs text-amber-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
                     <!-- VIP - 單杯 (紫色視覺區隔) -->
-                    <button type="button" ontouchend="selectSaleType('p3'); event.preventDefault();" onclick="selectSaleType('p3')" id="type-p3" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 active:bg-purple-200 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
+                    <button type="button" onclick="selectSaleType('p3')" id="type-p3" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 active:bg-purple-200 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
                         <span class="text-xs font-bold text-purple-950 pointer-events-none"><i class="fa-solid fa-crown text-purple-600 mr-1"></i> <span data-i18n="typeP3">VIP 單杯 (500ml)</span></span>
                         <span id="price-label-p3" class="text-xs text-purple-800 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
                     <!-- VIP - 兩杯 (紫色視覺區隔) -->
-                    <button type="button" ontouchend="selectSaleType('p4'); event.preventDefault();" onclick="selectSaleType('p4')" id="type-p4" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 active:bg-purple-200 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
+                    <button type="button" onclick="selectSaleType('p4')" id="type-p4" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 active:bg-purple-200 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
                         <span class="text-xs font-bold text-purple-950 pointer-events-none"><i class="fa-solid fa-award text-purple-600 mr-1"></i> <span data-i18n="typeP4">VIP 兩杯優惠 (500ml)</span></span>
                         <span id="price-label-p4" class="text-xs text-purple-800 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
                     <!-- FREE 330ml -->
-                    <button type="button" ontouchend="selectSaleType('p5'); event.preventDefault();" onclick="selectSaleType('p5')" id="type-p5" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-emerald-50 active:bg-emerald-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm col-span-2">
+                    <button type="button" onclick="selectSaleType('p5')" id="type-p5" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-emerald-50 active:bg-emerald-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm col-span-2">
                         <span class="text-xs font-bold text-emerald-800 pointer-events-none"><i class="fa-solid fa-gift text-emerald-600 mr-1"></i> <span data-i18n="typeP5">FREE 330ml</span></span>
                         <span id="price-label-p5" class="text-xs text-emerald-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
@@ -294,6 +308,8 @@
                 resetFilters: "Reset Filters",
                 lblBrand: "Brand",
                 allBrands: "All Brands",
+                grandTotalLabel: "Grand Total Revenue",
+                grandTotalSub: "All Active Transactions",
                 productList: "Product Catalog",
                 selectType: "Select Transaction Type",
                 typeP1: "Std Single Cup 500ml",
@@ -331,6 +347,8 @@
                 resetFilters: "重置篩選",
                 lblBrand: "品牌",
                 allBrands: "所有品牌",
+                grandTotalLabel: "全場累積總金額",
+                grandTotalSub: "所有有效交易紀錄合計",
                 productList: "產品清單",
                 selectType: "選擇交易類型",
                 typeP1: "一般顧客單杯 500ml",
@@ -585,7 +603,7 @@
             toggleResetButton();
         };
 
-        // RENDER PRODUCTS WITH REALTIME AGGREGATED TOTALS & FREE BUDGET PROGRESS
+        // RENDER PRODUCTS WITH REALTIME AGGREGATED TOTALS & GRAND TOTAL BANNER
         function renderProductList() {
             const container = document.getElementById('product-list-container');
             if (!container) return;
@@ -606,13 +624,32 @@
 
             document.getElementById('product-count').innerText = `${filtered.length} items`;
 
+            const activeLogs = salesRecords.filter(r => !r.isVoided);
+            const dict = I18N[currentLang];
+
+            // 計算全場累積總金額 (Grand Total Calculation)
+            let overallGrandTotal = 0;
+            activeLogs.forEach(l => {
+                const product = BEER_DATA.find(p => p.code === l.code);
+                if (product) {
+                    const q = l.qty || 1;
+                    if (l.type === 'p1') overallGrandTotal += product.p1 * q;
+                    if (l.type === 'p2') overallGrandTotal += product.p2 * q;
+                    if (l.type === 'p3') overallGrandTotal += product.p3 * q;
+                    if (l.type === 'p4') overallGrandTotal += product.p4 * q;
+                    if (l.type === 'p5') overallGrandTotal += product.p5 * q;
+                }
+            });
+
+            const grandTotalEl = document.getElementById('grand-total-amount');
+            if (grandTotalEl) {
+                grandTotalEl.innerText = `MOP ${overallGrandTotal.toLocaleString()}`;
+            }
+
             if (filtered.length === 0) {
                 container.innerHTML = `<div class="text-center py-12 text-slate-400 font-semibold text-sm">No matching products found.</div>`;
                 return;
             }
-
-            const activeLogs = salesRecords.filter(r => !r.isVoided);
-            const dict = I18N[currentLang];
 
             container.innerHTML = filtered.map(item => {
                 const itemLogs = activeLogs.filter(r => r.code === item.code);
@@ -628,7 +665,6 @@
                 });
 
                 const totalVal = (cP1 * item.p1) + (cP2 * item.p2) + (cP3 * item.p3) + (cP4 * item.p4) + (cP5 * item.p5);
-
                 const displayName = currentLang === 'en' ? item.descEn : item.descZh;
 
                 // Free Qty Progress Calculations
@@ -663,7 +699,7 @@
                             </button>
                         </div>
 
-                        <!-- FREE QTY TRACKER BANNER (I18N fully translated) -->
+                        <!-- FREE QTY TRACKER BANNER -->
                         <div class="p-2.5 rounded-xl border text-xs font-bold ${isOverLimit ? 'bg-red-50 border-red-200 text-red-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'} flex items-center justify-between">
                             <div class="flex items-center space-x-1.5">
                                 <i class="fa-solid ${isOverLimit ? 'fa-triangle-exclamation text-red-600' : 'fa-gift text-emerald-600'} text-sm"></i>
@@ -687,7 +723,6 @@
                                 <span class="block text-[9px] text-slate-500 font-bold truncate">${dict.badgeP2}</span>
                                 <span class="text-xs font-black text-amber-600">${cP2}</span>
                             </div>
-                            <!-- VIP 欄位以尊爵紫標記區隔 -->
                             <div class="bg-purple-50/60 p-1 rounded-lg border border-purple-200 shadow-sm">
                                 <span class="block text-[9px] text-purple-700 font-bold truncate">${dict.badgeP3}</span>
                                 <span class="text-xs font-black text-purple-700">${cP3}</span>
@@ -708,7 +743,7 @@
                                 <span class="text-slate-500">${dict.accumulatedTotal}</span>
                                 <span class="text-amber-800 font-black text-base ml-1">MOP ${totalVal.toLocaleString()}</span>
                             </div>
-                            <button ontouchend="openSaleModal('${item.code}'); event.preventDefault();" onclick="openSaleModal('${item.code}')" class="bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition flex items-center space-x-1.5 touch-btn">
+                            <button onclick="openSaleModal('${item.code}')" class="bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition flex items-center space-x-1.5 touch-btn">
                                 <i class="fa-solid fa-plus text-xs pointer-events-none"></i>
                                 <span class="pointer-events-none">Log Sale</span>
                             </button>
@@ -964,7 +999,7 @@
             }
         };
 
-        // EXCEL REPORT GENERATOR (WITH RAW TRANSACTION LOGS WORKSHEET)
+        // EXCEL REPORT GENERATOR
         function exportToExcel() {
             const activeLogs = salesRecords.filter(r => !r.isVoided);
 
