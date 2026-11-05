@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>Sands Cultural Carnival - Seapower POS Tracker</title>
+    <title>Sands Cultural Carnival - Seapower</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -28,12 +28,21 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
-        /* 鎖定 body 與 html，禁止水平滑動 */
+        /* 鎖定 body 與 html，禁止水平滑動並固定背景防止滾動 */
         html, body {
             width: 100%;
             max-width: 100%;
+            height: 100%;
             overflow-x: hidden !important;
+            overflow-y: hidden !important;
+            position: fixed;
             position: relative;
+        }
+        /* 讓主容器內部可以滾動 */
+        #app {
+            height: 100vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
@@ -158,7 +167,7 @@
                 </button>
             </div>
 
-    <!-- Transaction Type Options -->
+            <!-- Transaction Type Options -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" data-i18n="selectType">Select Transaction Type</label>
                 <div class="grid grid-cols-2 gap-2.5">
@@ -688,9 +697,9 @@
                                 <span class="text-slate-500">${dict.accumulatedTotal}</span>
                                 <span class="text-amber-800 font-black text-base ml-1">MOP ${totalVal.toLocaleString()}</span>
                             </div>
-                            <button onclick="openSaleModal('${item.code}')" class="bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition flex items-center space-x-1.5 touch-btn">
-                                <i class="fa-solid fa-plus text-xs"></i>
-                                <span>Log Sale</span>
+                            <button ontouchend="openSaleModal('${item.code}'); event.preventDefault();" onclick="openSaleModal('${item.code}')" class="bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition flex items-center space-x-1.5 touch-btn">
+                                <i class="fa-solid fa-plus text-xs pointer-events-none"></i>
+                                <span class="pointer-events-none">Log Sale</span>
                             </button>
                         </div>
                     </div>
