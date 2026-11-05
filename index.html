@@ -11,7 +11,6 @@
     <!-- SheetJS for Excel Export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* 1. 全局禁止 touch 雙擊放大與拖曳延遲，保持標準點擊體驗防止滑動誤觸 */
         * {
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
@@ -22,7 +21,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 隱藏 Input type=number 的原生上下微調按鈕 */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; 
@@ -32,7 +30,6 @@
             -moz-appearance: textfield;
         }
 
-        /* 鎖定 body 與 html，禁止水平滑動與頁面整體亂滾 */
         html, body {
             width: 100% !important;
             max-width: 100% !important;
@@ -44,7 +41,6 @@
             top: 0;
         }
 
-        /* 讓主容器內部可以正常獨立捲動 */
         #app {
             width: 100% !important;
             max-width: 100% !important;
@@ -54,13 +50,11 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* 5. 防止繁體中文長文字溢出邊框的修復樣式 */
         button, h1, h2, h3, span, p, label {
-            word-break: break-word; /* 避免長字串或中文過長撐破邊界 */
+            word-break: break-word;
             overflow-wrap: break-word;
         }
 
-        /* 確保交易選擇按鈕內的文字能舒適換行且不會突格 */
         .sale-type-btn {
             white-space: normal !important;
             word-break: break-word;
@@ -72,7 +66,7 @@
     <!-- App Container -->
     <div id="app" class="flex-1 flex flex-col max-w-4xl w-full mx-auto pb-8">
 
-<!-- Header -->
+        <!-- Header -->
         <header class="bg-white border-b border-amber-200 sticky top-0 z-30 px-4 py-3.5 flex items-center justify-between shadow-sm">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 bg-amber-600 text-white rounded-xl flex items-center justify-center shadow-md">
@@ -87,19 +81,15 @@
             </div>
 
             <div class="flex items-center space-x-2">
-                <!-- Language Selector (已改為簡寫：繁中 / EN) -->
                 <button id="btn-lang" class="bg-amber-50 hover:bg-amber-100 border border-amber-300 px-3.5 py-2 rounded-xl text-xs font-bold text-amber-800 transition touch-btn flex items-center shadow-sm">
                     繁中
                 </button>
-                <!-- Export Excel Button (只保留 Icon) -->
                 <button id="btn-export" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center shadow-md touch-btn" title="Export Report">
                     <i class="fa-solid fa-file-excel text-base"></i>
                 </button>
-                <!-- Clear Database Button -->
                 <button id="btn-clear" class="hidden bg-red-100 hover:bg-red-200 border border-red-300 text-red-700 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center touch-btn shadow-sm" title="Clear All Data">
                     <i class="fa-solid fa-trash-can text-base"></i>
                 </button>
-                <!-- Logout Button -->
                 <button id="btn-logout" class="hidden bg-slate-100 hover:bg-red-50 hover:text-red-600 border border-slate-300 text-slate-600 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center touch-btn shadow-sm" title="Logout">
                     <i class="fa-solid fa-right-from-bracket text-base"></i>
                 </button>
@@ -107,7 +97,7 @@
         </header>
 
         <!-- Main Content Area -->
-        <main class="flex-1 p-4 sm:p-5 flex flex-col">
+        <main class="flex-1 p-4 sm:p-5 flex flex-col justify-center">
 
             <!-- 1. LOGIN / AUTH MODAL -->
             <div id="auth-screen" class="my-auto max-w-md w-full mx-auto bg-white border border-amber-100 p-7 rounded-3xl shadow-xl">
@@ -135,35 +125,13 @@
             </div>
 
             <!-- 2. MAIN POS INTERFACE -->
-            <div id="pos-screen" class="hidden flex-1 flex flex-col space-y-5">
+            <div id="pos-screen" class="hidden flex-1 flex flex-col justify-center space-y-6 max-w-xl w-full mx-auto my-auto">
 
-                <!-- FILTERS SECTION (SINGLE-LEVEL BRAND FILTER) -->
-                <section class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-4">
-                    <div class="flex items-center justify-between text-xs font-bold text-slate-500 px-1">
-                        <span class="flex items-center"><i class="fa-solid fa-filter text-amber-600 mr-1.5 text-sm"></i> <span data-i18n="filterTitle">Product Filter</span></span>
-                        <button id="btn-reset-filters" class="text-amber-600 hover:text-amber-800 font-bold hidden text-xs" data-i18n="resetFilters">Reset Filters</button>
-                    </div>
-
-                    <!-- Single-Level Brand Filter Buttons -->
-                    <div id="brand-container">
-                        <label class="block text-xs font-bold text-slate-600 mb-2" data-i18n="lblBrand">Brand</label>
-                        <div id="brand-pills" class="flex flex-wrap gap-2">
-                            <!-- Brand pills dynamically populated -->
-                        </div>
-                    </div>
-
-                    <!-- Search Input -->
-                    <div class="relative pt-1">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-5 text-slate-400 text-sm"></i>
-                        <input type="text" id="input-search" placeholder="Search Code or Product Name..." class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
-                    </div>
-                </section>
-
-                <!-- 新增：全場累積總金額看板 (Grand Total Sales Banner) -->
-                <section class="bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-2xl p-4 shadow-md flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center">
-                            <i class="fa-solid fa-sack-dollar text-xl text-white"></i>
+                <!-- 全場累積總金額看板 (Grand Total Sales Banner) -->
+                <section class="bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-3xl p-6 shadow-lg flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+                            <i class="fa-solid fa-sack-dollar text-2xl text-white"></i>
                         </div>
                         <div>
                             <span class="text-xs font-bold uppercase tracking-wider text-amber-100 block" data-i18n="grandTotalLabel">Grand Total Revenue</span>
@@ -171,27 +139,35 @@
                         </div>
                     </div>
                     <div class="text-right">
-                        <span id="grand-total-amount" class="text-2xl font-black tracking-tight block">MOP 0</span>
+                        <span id="grand-total-amount" class="text-3xl font-black tracking-tight block">MOP 0</span>
                     </div>
                 </section>
 
-                <!-- PRODUCT LIST -->
-                <section class="flex-1 space-y-3.5">
-                    <div class="flex items-center justify-between px-1">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider" data-i18n="productList">Product Catalog</span>
-                        <span id="product-count" class="text-xs bg-amber-100 text-amber-800 font-extrabold px-2.5 py-1 rounded-full border border-amber-200">0 items</span>
-                    </div>
-
-                    <div id="product-list-container" class="space-y-3.5">
-                        <!-- Products will be injected here dynamically -->
+                <!-- 5 個品牌獨立按鈕區塊 -->
+                <section class="space-y-3">
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wider px-1 text-center" data-i18n="selectBrandTitle">Select Brand to Log Sales</div>
+                    <div id="brand-buttons-container" class="grid grid-cols-1 gap-3.5">
+                        <!-- 5 個品牌按鈕將動態生成 -->
                     </div>
                 </section>
             </div>
         </main>
     </div>
 
+    <!-- MODAL 0: BRAND DETAIL POPUP (點擊背景空白處即可關閉) -->
+    <div id="modal-brand-detail" onclick="closeBrandDetailModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden flex items-center justify-center p-4">
+        <div onclick="event.stopPropagation()" class="bg-white border border-slate-200 w-full max-w-xl rounded-3xl p-6 shadow-2xl space-y-4 relative animate-in fade-in zoom-in duration-150">
+            <button onclick="closeBrandDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-2 touch-btn">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+            <div id="brand-detail-content">
+                <!-- 動態注入品牌卡片細節 -->
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL 1: RECORD TRANSACTION MODAL -->
-    <div id="modal-sale" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div id="modal-sale" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white border border-slate-200 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-5 animate-in slide-in-from-bottom duration-200">
             <div class="flex justify-between items-start border-b border-slate-100 pb-3.5">
                 <div>
@@ -207,31 +183,26 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" data-i18n="selectType">Select Transaction Type</label>
                 <div class="grid grid-cols-2 gap-2.5">
-                    <!-- 一般 - 單杯 -->
                     <button type="button" onclick="selectSaleType('p1')" id="type-p1" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
                         <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-beer-mug-empty text-amber-600 mr-1"></i> <span data-i18n="typeP1">一般單杯 (500ml)</span></span>
                         <span id="price-label-p1" class="text-xs text-amber-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
-                    <!-- 一般 - 兩杯 -->
                     <button type="button" onclick="selectSaleType('p2')" id="type-p2" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
                         <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-wine-glass-drop text-amber-600 mr-1"></i> <span data-i18n="typeP2">一般兩杯優惠 (500ml)</span></span>
                         <span id="price-label-p2" class="text-xs text-amber-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
-                    <!-- VIP - 單杯 (紫色視覺區隔) -->
                     <button type="button" onclick="selectSaleType('p3')" id="type-p3" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 active:bg-purple-200 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
                         <span class="text-xs font-bold text-purple-950 pointer-events-none"><i class="fa-solid fa-crown text-purple-600 mr-1"></i> <span data-i18n="typeP3">VIP 單杯 (500ml)</span></span>
                         <span id="price-label-p3" class="text-xs text-purple-800 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
-                    <!-- VIP - 兩杯 (紫色視覺區隔) -->
                     <button type="button" onclick="selectSaleType('p4')" id="type-p4" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 active:bg-purple-200 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
                         <span class="text-xs font-bold text-purple-950 pointer-events-none"><i class="fa-solid fa-award text-purple-600 mr-1"></i> <span data-i18n="typeP4">VIP 兩杯優惠 (500ml)</span></span>
                         <span id="price-label-p4" class="text-xs text-purple-800 font-extrabold mt-1 pointer-events-none">MOP 0</span>
                     </button>
 
-                    <!-- FREE 330ml -->
                     <button type="button" onclick="selectSaleType('p5')" id="type-p5" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-emerald-50 active:bg-emerald-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm col-span-2">
                         <span class="text-xs font-bold text-emerald-800 pointer-events-none"><i class="fa-solid fa-gift text-emerald-600 mr-1"></i> <span data-i18n="typeP5">FREE 330ml</span></span>
                         <span id="price-label-p5" class="text-xs text-emerald-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
@@ -239,12 +210,11 @@
                 </div>
             </div>
 
-            <!-- Quantity Selector with Direct Number Input -->
+            <!-- Quantity Selector -->
             <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl p-2 px-4 shadow-sm">
                 <span class="text-sm font-bold text-slate-700" data-i18n="qty">Quantity</span>
                 <div class="flex items-center space-x-3">
                     <button type="button" onclick="adjustModalQty(-1)" class="w-10 h-10 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 font-bold text-lg flex items-center justify-center shadow-sm">-</button>
-                    <!-- 支持點擊彈出數字九宮格鍵盤 -->
                     <input type="number" id="modal-sale-qty" inputmode="numeric" pattern="[0-9]*" value="1" min="1" onfocus="this.select()" onchange="onQtyInputChange(this.value)" class="w-16 h-10 text-center font-extrabold text-amber-700 text-lg bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-inner" />
                     <button type="button" onclick="adjustModalQty(1)" class="w-10 h-10 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 font-bold text-lg flex items-center justify-center shadow-sm">+</button>
                 </div>
@@ -259,7 +229,7 @@
     </div>
 
     <!-- MODAL 2: ITEM LOG & VOID MANAGEMENT -->
-    <div id="modal-history" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div id="modal-history" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white border border-slate-200 w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[85vh] flex flex-col space-y-4">
             <div class="flex justify-between items-start border-b border-slate-100 pb-3.5">
                 <div>
@@ -271,9 +241,7 @@
                 </button>
             </div>
 
-            <!-- Log list container -->
             <div id="modal-hist-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1 no-scrollbar my-2 min-h-[200px]">
-                <!-- Log entries dynamically injected -->
             </div>
 
             <div class="pt-2 border-t border-slate-100 text-center">
@@ -296,16 +264,15 @@
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // PRODUCT DATA MATRIX
+        // BEER DATA (已連結 logo 資料夾圖片)
         const BEER_DATA = [
-            { id: 1, brand: "San Miguel", code: "BSANM15DR", descEn: "San Miguel (Philippines) Draught", descZh: "生力啤酒(菲律賓)生啤酒", p1: 50, p2: 85, p3: 50, p4: 85, p5: 0, maxFree: 182 },
-            { id: 2, brand: "Kirin", code: "BKIRDR", descEn: "Kirin Ichiban Draught", descZh: "麒麟一番搾生啤酒", p1: 50, p2: 85, p3: 50, p4: 85, p5: 0, maxFree: 242 },
-            { id: 3, brand: "Budweiser", code: "BBUDDR-J", descEn: "Budweiser Beer Draught", descZh: "百威啤酒生啤酒", p1: 50, p2: 85, p3: 50, p4: 85, p5: 0, maxFree: 364 },
-            { id: 4, brand: "Hoegaarden", code: "BHOEDR20L-J", descEn: "Hoegaarden Draught", descZh: "好卡頓生啤酒", p1: 70, p2: 120, p3: 70, p4: 120, p5: 0, maxFree: 242 },
-            { id: 5, brand: "Stella Artois", code: "BSTEADR20L-J", descEn: "Stella Artois Draught", descZh: "時代生啤酒", p1: 70, p2: 120, p3: 70, p4: 120, p5: 0, maxFree: 242 }
+            { id: 1, brand: "San Miguel", logo: "logo/sm.png", code: "BSANM15DR", descEn: "San Miguel (Philippines) Draught", descZh: "生力啤酒(菲律賓)生啤酒", p1: 50, p2: 85, p3: 50, p4: 85, p5: 0, maxFree: 182 },
+            { id: 2, brand: "Kirin", logo: "logo/kirin.jpg", code: "BKIRDR", descEn: "Kirin Ichiban Draught", descZh: "麒麟一番搾生啤酒", p1: 50, p2: 85, p3: 50, p4: 85, p5: 0, maxFree: 242 },
+            { id: 3, brand: "Budweiser", logo: "logo/bud.png", code: "BBUDDR-J", descEn: "Budweiser Beer Draught", descZh: "百威啤酒生啤酒", p1: 50, p2: 85, p3: 50, p4: 85, p5: 0, maxFree: 364 },
+            { id: 4, brand: "Hoegaarden", logo: "logo/hoe.png", code: "BHOEDR20L-J", descEn: "Hoegaarden Draught", descZh: "好卡頓生啤酒", p1: 70, p2: 120, p3: 70, p4: 120, p5: 0, maxFree: 242 },
+            { id: 5, brand: "Stella Artois", logo: "logo/sa.png", code: "BSTEADR20L-J", descEn: "Stella Artois Draught", descZh: "時代生啤酒", p1: 70, p2: 120, p3: 70, p4: 120, p5: 0, maxFree: 242 }
         ];
 
-        // FULL I18N DICTIONARIES
         const I18N = {
             en: {
                 title: "Sands Cultural Carnival - Seapower",
@@ -314,14 +281,9 @@
                 lblPassword: "Access Password",
                 lblUserName: "Your Name / Staff ID",
                 btnLogin: "Enter System",
-                exportReport: "Export Report",
-                filterTitle: "Product Filter",
-                resetFilters: "Reset Filters",
-                lblBrand: "Brand",
-                allBrands: "All Brands",
+                selectBrandTitle: "Select Brand to Log Sales",
                 grandTotalLabel: "Grand Total Revenue",
                 grandTotalSub: "All Active Transactions",
-                productList: "Product Catalog",
                 selectType: "Select Transaction Type",
                 typeP1: "Std Single Cup 500ml",
                 typeP2: "Std 2-Cups Offer 500ml",
@@ -353,14 +315,9 @@
                 lblPassword: "存取密碼",
                 lblUserName: "使用者名字 / 員工名稱",
                 btnLogin: "進入系統",
-                exportReport: "導出 Excel 報告",
-                filterTitle: "產品目錄篩選",
-                resetFilters: "重置篩選",
-                lblBrand: "品牌",
-                allBrands: "所有品牌",
+                selectBrandTitle: "選擇品牌以登記銷售",
                 grandTotalLabel: "全場累積總金額",
                 grandTotalSub: "所有有效交易紀錄合計",
-                productList: "產品清單",
                 selectType: "選擇交易類型",
                 typeP1: "一般單杯 500ml",
                 typeP2: "一般兩杯優惠 500ml",
@@ -392,14 +349,11 @@
         let selectedProduct = null;
         let activeSaleType = 'p1';
         let selectedQty = 1;
+        let activeDetailBrand = null;
 
-        let selectedBrandFilter = '';
-
-        // Local Storage / Memory Fallback Keys
         const STORAGE_KEY_USER = 'seapower_event_user';
         const STORAGE_KEY_SALES = 'seapower_event_sales_fallback';
 
-        // Firebase Configuration
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'seapower-event-app-default';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyBiQt0F16z9J-PNLNpDYVjK9MIkwdY2kSI",
@@ -416,7 +370,6 @@
         let salesRecords = [];
         let isFirebaseConnected = false;
 
-        // Toast Helper
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toast-msg').innerText = msg;
@@ -424,7 +377,6 @@
             setTimeout(() => { toast.classList.add('hidden'); }, 3000);
         }
 
-        // PREVENT DOUBLE-TAP ZOOM FOR MOBILE DEVICES
         function preventDoubleTapZoom() {
             let lastTouchEnd = 0;
             document.addEventListener('touchend', function (event) {
@@ -436,18 +388,15 @@
             }, false);
         }
 
-        // INIT & AUTH LOGIC
         window.addEventListener('DOMContentLoaded', async () => {
             preventDoubleTapZoom();
 
-            // Check stored session
             const savedUser = localStorage.getItem(STORAGE_KEY_USER);
             if (savedUser) {
                 currentUser = savedUser;
                 showMainInterface();
             }
 
-            // Initialize Firebase with fallback
             try {
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
@@ -459,14 +408,13 @@
                     try {
                         await signInAnonymously(auth);
                     } catch (authErr) {
-                        console.warn("Firebase Anonymous Auth is disabled or restricted. Falling back to local mode.", authErr);
+                        console.warn("Firebase Anonymous Auth is disabled. Fallback to local mode.", authErr);
                         loadLocalSalesFallback();
-                        renderBrandPills();
+                        renderBrandButtons();
                         return;
                     }
                 }
 
-                // Listen to Firestore Realtime Updates
                 const salesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'sales_records');
                 onSnapshot(salesColRef, (snapshot) => {
                     salesRecords = [];
@@ -474,18 +422,17 @@
                         salesRecords.push({ id: doc.id, ...doc.data() });
                     });
                     isFirebaseConnected = true;
-                    renderProductList();
+                    updateDashboardAndCard();
                 }, (error) => {
-                    console.warn("Firestore listener error, using fallback state:", error);
+                    console.warn("Firestore listener error:", error);
                     loadLocalSalesFallback();
                 });
             } catch (err) {
-                console.warn("Firebase initialization skipped/failed. Running offline mode:", err);
+                console.warn("Firebase offline mode:", err);
                 loadLocalSalesFallback();
             }
 
-            renderBrandPills();
-            renderProductList();
+            renderBrandButtons();
             setupEventListeners();
         });	
 
@@ -495,6 +442,7 @@
             document.getElementById('user-badge').classList.add('flex');
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('pos-screen').classList.remove('hidden');
+            document.getElementById('pos-screen').classList.add('flex');
             document.getElementById('btn-export').classList.remove('hidden');
             document.getElementById('btn-clear').classList.remove('hidden');
             document.getElementById('btn-logout').classList.remove('hidden');
@@ -509,6 +457,7 @@
             document.getElementById('user-badge').classList.remove('flex');
             document.getElementById('auth-screen').classList.remove('hidden');
             document.getElementById('pos-screen').classList.add('hidden');
+            document.getElementById('pos-screen').classList.remove('flex');
             document.getElementById('btn-export').classList.add('hidden');
             document.getElementById('btn-clear').classList.add('hidden');
             document.getElementById('btn-logout').classList.add('hidden');
@@ -517,7 +466,6 @@
             showToast('Logged out successfully / 已成功登出');
         }
 
-        // CLEAR ALL RECORDS FUNCTIONALITY
         async function handleClearAllData() {
             const enteredPass = prompt('請輸入清除記錄密碼 / Enter clear password:');
             if (enteredPass === null) return;
@@ -534,14 +482,13 @@
                 if (isFirebaseConnected && db) {
                     const salesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'sales_records');
                     const snapshot = await getDocs(salesColRef);
-                    
                     const deletePromises = snapshot.docs.map(document => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sales_records', document.id)));
                     await Promise.all(deletePromises);
                 }
 
                 salesRecords = [];
                 saveLocalSalesFallback();
-                renderProductList();
+                updateDashboardAndCard();
 
                 showToast('所有記錄已成功清除 / All records cleared!');
             } catch (err) {
@@ -557,7 +504,7 @@
             } catch (e) {
                 salesRecords = [];
             }
-            renderProductList();
+            updateDashboardAndCard();
         }
 
         function saveLocalSalesFallback() {
@@ -568,7 +515,6 @@
             }
         }
 
-        // LANGUAGE TOGGLE
         function setLanguage(lang) {
             currentLang = lang;
             document.getElementById('btn-lang').innerText = lang === 'en' ? '繁中' : 'EN';
@@ -581,65 +527,159 @@
                 }
             });
 
-            renderBrandPills();
-            renderProductList();
+            renderBrandButtons();
+            if (activeDetailBrand) {
+                renderBrandDetailContent(activeDetailBrand);
+            }
         }
 
-        // RENDER SINGLE-LEVEL BRAND FILTER PILLS
-        function renderBrandPills() {
-            const brandContainer = document.getElementById('brand-pills');
-            const brands = [...new Set(BEER_DATA.map(item => item.brand))];
-
-            let brandHtml = `
-                <button type="button" onclick="selectBrandFilter('')" class="pill-btn touch-btn text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-sm border ${selectedBrandFilter === '' ? 'bg-amber-600 text-white border-amber-600 shadow-md' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'}">
-                    ${I18N[currentLang].allBrands}
-                </button>
-            `;
-
-            brands.forEach(b => {
-                const isSelected = selectedBrandFilter === b;
-                brandHtml += `
-                    <button type="button" onclick="selectBrandFilter('${b}')" class="pill-btn touch-btn text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-sm border ${isSelected ? 'bg-amber-600 text-white border-amber-600 shadow-md' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'}">
-                        ${b}
-                    </button>
-                `;
-            });
-            brandContainer.innerHTML = brandHtml;
-        }
-
-        window.selectBrandFilter = function(b) {
-            selectedBrandFilter = b;
-            renderBrandPills();
-            renderProductList();
-            toggleResetButton();
-        };
-
-        // RENDER PRODUCTS WITH REALTIME AGGREGATED TOTALS & GRAND TOTAL BANNER
-        function renderProductList() {
-            const container = document.getElementById('product-list-container');
+        // 渲染主畫面的 5 個品牌獨立按鈕
+        function renderBrandButtons() {
+            const container = document.getElementById('brand-buttons-container');
             if (!container) return;
 
-            const searchInput = document.getElementById('input-search');
-            const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            container.innerHTML = BEER_DATA.map(item => {
+                const logoHtml = item.logo 
+                    ? `<img src="${item.logo}" alt="${item.brand}" class="w-12 h-12 object-contain">`
+                    : `<i class="fa-solid fa-beer-mug-empty text-2xl"></i>`;
 
-            const filtered = BEER_DATA.filter(item => {
-                if (selectedBrandFilter && item.brand !== selectedBrandFilter) return false;
-                if (search) {
-                    const matchCode = item.code.toLowerCase().includes(search);
-                    const matchEn = item.descEn.toLowerCase().includes(search);
-                    const matchZh = item.descZh.toLowerCase().includes(search);
-                    if (!matchCode && !matchEn && !matchZh) return false;
-                }
-                return true;
-            });
+                return `
+                    <button onclick="openBrandDetailModal('${item.brand}')" class="w-full bg-white hover:bg-amber-50/80 border-2 border-slate-200 hover:border-amber-500 rounded-2xl p-4 shadow-sm hover:shadow-md transition flex items-center touch-btn group">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-amber-700 font-extrabold group-hover:border-amber-400 transition flex-shrink-0 mr-4 overflow-hidden p-1.5 shadow-inner">
+                            ${logoHtml}
+                        </div>
+                        <div class="flex-1 text-left">
+                            <h3 class="text-xl font-black text-slate-900 tracking-tight">${item.brand}</h3>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
 
-            document.getElementById('product-count').innerText = `${filtered.length} items`;
+        // 開啟品牌卡片彈窗
+        window.openBrandDetailModal = function(brandName) {
+            activeDetailBrand = BEER_DATA.find(p => p.brand === brandName);
+            if (!activeDetailBrand) return;
 
-            const activeLogs = salesRecords.filter(r => !r.isVoided);
+            renderBrandDetailContent(activeDetailBrand);
+            document.getElementById('modal-brand-detail').classList.remove('hidden');
+        };
+
+        window.closeBrandDetailModal = function() {
+            document.getElementById('modal-brand-detail').classList.add('hidden');
+            activeDetailBrand = null;
+        };
+
+        // 渲染品牌詳細資訊卡片內容
+        function renderBrandDetailContent(item) {
+            const container = document.getElementById('brand-detail-content');
+            if (!container) return;
+
+            const activeLogs = salesRecords.filter(r => !r.isVoided && r.code === item.code);
             const dict = I18N[currentLang];
 
-            // 計算全場累積總金額 (Grand Total Calculation)
+            let cP1 = 0, cP2 = 0, cP3 = 0, cP4 = 0, cP5 = 0;
+            activeLogs.forEach(l => {
+                const q = l.qty || 1;
+                if (l.type === 'p1') cP1 += q;
+                if (l.type === 'p2') cP2 += q;
+                if (l.type === 'p3') cP3 += q;
+                if (l.type === 'p4') cP4 += q;
+                if (l.type === 'p5') cP5 += q;
+            });
+
+            const totalVal = (cP1 * item.p1) + (cP2 * item.p2) + (cP3 * item.p3) + (cP4 * item.p4) + (cP5 * item.p5);
+            const displayName = currentLang === 'en' ? item.descEn : item.descZh;
+
+            const freeGiven = cP5;
+            const maxFree = item.maxFree || 0;
+            const freeRemaining = maxFree - freeGiven;
+            const isOverLimit = freeGiven > maxFree;
+
+            const priceText = item.p1 === 50 ? dict.labelP1P2 : dict.labelP1P2_70;
+
+            container.innerHTML = `
+                <div class="space-y-4 pt-1">
+                    <div class="flex justify-between items-start pr-8">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-0.5 rounded-md">
+                                    #${item.id} · ${item.code}
+                                </span>
+                                <span class="text-xs bg-slate-100 text-slate-700 font-bold px-2.5 py-0.5 rounded-md">${item.brand}</span>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-900 mt-2 leading-snug">${displayName}</h3>
+                            
+                            <div class="flex flex-wrap gap-2 mt-2 text-xs font-bold text-slate-600">
+                                <span class="bg-amber-50 text-amber-900 border border-amber-200 px-2.5 py-1 rounded-md">${priceText}</span>
+                                <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-md">FREE: MOP ${item.p5}</span>
+                            </div>
+                        </div>
+                        
+                        <button onclick="openHistoryModal('${item.code}')" class="text-slate-500 hover:text-amber-700 p-2.5 touch-btn flex flex-col items-center justify-center bg-slate-50 hover:bg-amber-50 rounded-2xl border border-slate-200 shadow-sm transition">
+                            <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                            <span class="text-[10px] mt-0.5 font-bold">Log</span>
+                        </button>
+                    </div>
+
+                    <!-- FREE QTY TRACKER BANNER -->
+                    <div class="p-3 rounded-2xl border text-xs font-bold ${isOverLimit ? 'bg-red-50 border-red-200 text-red-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'} flex items-center justify-between shadow-sm">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid ${isOverLimit ? 'fa-triangle-exclamation text-red-600' : 'fa-gift text-emerald-600'} text-base"></i>
+                            <span>${dict.freeProgress}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-black text-base ${isOverLimit ? 'text-red-700' : 'text-emerald-700'}">${freeGiven} / ${maxFree}</span>
+                            <span class="text-[10px] block font-semibold ${isOverLimit ? 'text-red-600' : 'text-emerald-600'}">
+                                ${isOverLimit ? `${dict.exceededBy} ${Math.abs(freeRemaining)} ${dict.cups}` : `${dict.remaining} ${freeRemaining} ${dict.cups}`}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Sales Counter Badges -->
+                    <div class="grid grid-cols-5 gap-2 text-center bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
+                        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+                            <span class="block text-[10px] text-slate-500 font-bold truncate">${dict.badgeP1}</span>
+                            <span class="text-sm font-black text-amber-600 mt-0.5 block">${cP1}</span>
+                        </div>
+                        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+                            <span class="block text-[10px] text-slate-500 font-bold truncate">${dict.badgeP2}</span>
+                            <span class="text-sm font-black text-amber-600 mt-0.5 block">${cP2}</span>
+                        </div>
+                        <div class="bg-purple-50/70 p-2 rounded-xl border border-purple-200 shadow-sm">
+                            <span class="block text-[10px] text-purple-700 font-bold truncate">${dict.badgeP3}</span>
+                            <span class="text-sm font-black text-purple-700 mt-0.5 block">${cP3}</span>
+                        </div>
+                        <div class="bg-purple-50/70 p-2 rounded-xl border border-purple-200 shadow-sm">
+                            <span class="block text-[10px] text-purple-700 font-bold truncate">${dict.badgeP4}</span>
+                            <span class="text-sm font-black text-purple-700 mt-0.5 block">${cP4}</span>
+                        </div>
+                        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+                            <span class="block text-[10px] text-slate-500 font-bold truncate">${dict.badgeFree}</span>
+                            <span class="text-sm font-black ${isOverLimit ? 'text-red-600' : 'text-emerald-600'} mt-0.5 block">${cP5}</span>
+                        </div>
+                    </div>
+
+                    <!-- Price Info & Quick Action Button -->
+                    <div class="flex items-center justify-between pt-2">
+                        <div class="text-xs font-medium">
+                            <span class="text-slate-500 block">${dict.accumulatedTotal}</span>
+                            <span class="text-amber-800 font-black text-xl">MOP ${totalVal.toLocaleString()}</span>
+                        </div>
+                        <button onclick="openSaleModal('${item.code}')" class="bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-lg transition flex items-center space-x-2 touch-btn">
+                            <i class="fa-solid fa-plus text-sm pointer-events-none"></i>
+                            <span class="pointer-events-none">Log Sale</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 更新 Grand Total 及目前打開的 Card 內容
+        function updateDashboardAndCard() {
+            const activeLogs = salesRecords.filter(r => !r.isVoided);
             let overallGrandTotal = 0;
+
             activeLogs.forEach(l => {
                 const product = BEER_DATA.find(p => p.code === l.code);
                 if (product) {
@@ -657,114 +697,11 @@
                 grandTotalEl.innerText = `MOP ${overallGrandTotal.toLocaleString()}`;
             }
 
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-slate-400 font-semibold text-sm">No matching products found.</div>`;
-                return;
+            if (activeDetailBrand) {
+                renderBrandDetailContent(activeDetailBrand);
             }
-
-            container.innerHTML = filtered.map(item => {
-                const itemLogs = activeLogs.filter(r => r.code === item.code);
-                let cP1 = 0, cP2 = 0, cP3 = 0, cP4 = 0, cP5 = 0;
-
-                itemLogs.forEach(l => {
-                    const q = l.qty || 1;
-                    if (l.type === 'p1') cP1 += q;
-                    if (l.type === 'p2') cP2 += q;
-                    if (l.type === 'p3') cP3 += q;
-                    if (l.type === 'p4') cP4 += q;
-                    if (l.type === 'p5') cP5 += q;
-                });
-
-                const totalVal = (cP1 * item.p1) + (cP2 * item.p2) + (cP3 * item.p3) + (cP4 * item.p4) + (cP5 * item.p5);
-                const displayName = currentLang === 'en' ? item.descEn : item.descZh;
-
-                // Free Qty Progress Calculations
-                const freeGiven = cP5;
-                const maxFree = item.maxFree || 0;
-                const freeRemaining = maxFree - freeGiven;
-                const isOverLimit = freeGiven > maxFree;
-
-                const priceText = item.p1 === 50 ? dict.labelP1P2 : dict.labelP1P2_70;
-
-                return `
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm hover:shadow-md flex flex-col justify-between space-y-3.5 transition">
-                        <div class="flex justify-between items-start space-x-3">
-                            <div class="flex-1">
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md">
-                                        #${item.id} · ${item.code}
-                                    </span>
-                                    <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">${item.brand}</span>
-                                </div>
-                                <h3 class="text-base font-extrabold text-slate-900 mt-2 leading-snug">${displayName}</h3>
-                                
-                                <div class="flex flex-wrap gap-1.5 mt-2 text-[11px] font-bold text-slate-600">
-                                    <span class="bg-amber-50 text-amber-900 border border-amber-100 px-2 py-0.5 rounded-md">${priceText}</span>
-                                    <span class="bg-emerald-50 text-emerald-800 border border-emerald-100 px-2 py-0.5 rounded-md">FREE: MOP ${item.p5}</span>
-                                </div>
-                            </div>
-                            
-                            <button onclick="openHistoryModal('${item.code}')" class="text-slate-500 hover:text-amber-700 p-2 touch-btn flex flex-col items-center justify-center bg-slate-50 hover:bg-amber-50 rounded-xl border border-slate-200">
-                                <i class="fa-solid fa-clock-rotate-left text-base"></i>
-                                <span class="text-[10px] mt-0.5 font-bold">Log</span>
-                            </button>
-                        </div>
-
-                        <!-- FREE QTY TRACKER BANNER -->
-                        <div class="p-2.5 rounded-xl border text-xs font-bold ${isOverLimit ? 'bg-red-50 border-red-200 text-red-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'} flex items-center justify-between">
-                            <div class="flex items-center space-x-1.5">
-                                <i class="fa-solid ${isOverLimit ? 'fa-triangle-exclamation text-red-600' : 'fa-gift text-emerald-600'} text-sm"></i>
-                                <span>${dict.freeProgress}</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="font-black text-sm ${isOverLimit ? 'text-red-700' : 'text-emerald-700'}">${freeGiven} / ${maxFree}</span>
-                                <span class="text-[10px] block font-semibold ${isOverLimit ? 'text-red-600' : 'text-emerald-600'}">
-                                    ${isOverLimit ? `${dict.exceededBy} ${Math.abs(freeRemaining)} ${dict.cups}` : `${dict.remaining} ${freeRemaining} ${dict.cups}`}
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Real-time Sales Counter Badges -->
-                        <div class="grid grid-cols-5 gap-1.5 text-center bg-slate-50 p-2 rounded-xl border border-slate-200">
-                            <div class="bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
-                                <span class="block text-[9px] text-slate-500 font-bold truncate">${dict.badgeP1}</span>
-                                <span class="text-xs font-black text-amber-600">${cP1}</span>
-                            </div>
-                            <div class="bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
-                                <span class="block text-[9px] text-slate-500 font-bold truncate">${dict.badgeP2}</span>
-                                <span class="text-xs font-black text-amber-600">${cP2}</span>
-                            </div>
-                            <div class="bg-purple-50/60 p-1 rounded-lg border border-purple-200 shadow-sm">
-                                <span class="block text-[9px] text-purple-700 font-bold truncate">${dict.badgeP3}</span>
-                                <span class="text-xs font-black text-purple-700">${cP3}</span>
-                            </div>
-                            <div class="bg-purple-50/60 p-1 rounded-lg border border-purple-200 shadow-sm">
-                                <span class="block text-[9px] text-purple-700 font-bold truncate">${dict.badgeP4}</span>
-                                <span class="text-xs font-black text-purple-700">${cP4}</span>
-                            </div>
-                            <div class="bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
-                                <span class="block text-[9px] text-slate-500 font-bold truncate">${dict.badgeFree}</span>
-                                <span class="text-xs font-black ${isOverLimit ? 'text-red-600' : 'text-emerald-600'}">${cP5}</span>
-                            </div>
-                        </div>
-
-                        <!-- Price Info & Quick Action Button -->
-                        <div class="flex items-center justify-between pt-1">
-                            <div class="text-xs font-medium">
-                                <span class="text-slate-500">${dict.accumulatedTotal}</span>
-                                <span class="text-amber-800 font-black text-base ml-1">MOP ${totalVal.toLocaleString()}</span>
-                            </div>
-                            <button onclick="openSaleModal('${item.code}')" class="bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition flex items-center space-x-1.5 touch-btn">
-                                <i class="fa-solid fa-plus text-xs pointer-events-none"></i>
-                                <span class="pointer-events-none">Log Sale</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
         }
 
-        // EVENT LISTENERS SETUP
         function setupEventListeners() {
             document.getElementById('form-auth').addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -800,31 +737,7 @@
                 setLanguage(currentLang === 'en' ? 'zh' : 'en');
             });
 
-            document.getElementById('input-search').addEventListener('input', () => {
-                renderProductList();
-                toggleResetButton();
-            });
-
-            document.getElementById('btn-reset-filters').addEventListener('click', () => {
-                selectedBrandFilter = '';
-                document.getElementById('input-search').value = '';
-                renderBrandPills();
-                renderProductList();
-                toggleResetButton();
-            });
-
             document.getElementById('btn-export').addEventListener('click', exportToExcel);
-        }
-
-        function toggleResetButton() {
-            const search = document.getElementById('input-search').value;
-            const resetBtn = document.getElementById('btn-reset-filters');
-
-            if (selectedBrandFilter || search) {
-                resetBtn.classList.remove('hidden');
-            } else {
-                resetBtn.classList.add('hidden');
-            }
         }
 
         // SALE MODAL FUNCTIONS
@@ -854,7 +767,6 @@
             document.getElementById('modal-sale').classList.add('hidden');
         };
 
-        // 選取交易類型：VIP 按鈕加強紫金色顯著高亮
         window.selectSaleType = function(type) {
             activeSaleType = type;
 
@@ -918,7 +830,7 @@
                     record.id = 'loc_' + Date.now();
                     salesRecords.push(record);
                     saveLocalSalesFallback();
-                    renderProductList();
+                    updateDashboardAndCard();
                 }
                 showToast('Sale logged successfully / 記錄成功!');
             } catch (err) {
@@ -999,7 +911,7 @@
                         salesRecords[idx].voidedBy = currentUser;
                         salesRecords[idx].voidedAt = new Date().toISOString();
                         saveLocalSalesFallback();
-                        renderProductList();
+                        updateDashboardAndCard();
                     }
                 }
                 showToast('Transaction voided / 記錄已作廢');
@@ -1014,7 +926,6 @@
         function exportToExcel() {
             const activeLogs = salesRecords.filter(r => !r.isVoided);
 
-            // 1. Summary Worksheet Rows
             const reportRows = BEER_DATA.map(item => {
                 const itemLogs = activeLogs.filter(r => r.code === item.code);
 
@@ -1047,7 +958,6 @@
                 };
             });
 
-            // 2. Raw Transaction Logs Worksheet Rows
             const rawLogsRows = salesRecords.map(log => {
                 const product = BEER_DATA.find(p => p.code === log.code) || {};
                 const dateObj = new Date(log.timestamp);
@@ -1082,11 +992,9 @@
 
             const workbook = XLSX.utils.book_new();
 
-            // Add Summary Sheet
             const summarySheet = XLSX.utils.json_to_sheet(reportRows);
             XLSX.utils.book_append_sheet(workbook, summarySheet, "Sales Summary");
 
-            // Add Raw Transaction Logs Sheet
             const rawLogsSheet = XLSX.utils.json_to_sheet(rawLogsRows);
             XLSX.utils.book_append_sheet(workbook, rawLogsSheet, "Transaction Logs");
 
