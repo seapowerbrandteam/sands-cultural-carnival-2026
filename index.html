@@ -11,15 +11,42 @@
     <!-- SheetJS for Excel Export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* 禁止整個頁面的 touch 縮放/雙擊放大，同時保持滾動能力 */
-        html, body, button, input, div {
+        /* 1. 全局禁止 touch 雙擊放大與拖曳延遲 */
+        * {
             touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box; /* 確保 padding 與 border 不會擠開寬度 */
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+        /* 2. 徹底鎖定 html 與 body，強行禁止任何水平與垂直滾動 */
+        html, body {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100% !important;
+            overflow-x: hidden !important; /* 核心關鍵：徹底隱藏水平滾動 */
+            overflow-y: hidden !important;
+            position: fixed;
+            left: 0;
+            top: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+        }
+
+        /* 3. 主容器內部獨立處理垂直滾動，同時限制寬度不超出螢幕 */
+        #app {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100vh;
+            overflow-x: hidden !important; /* 確保主容器也不會橫向滾動 */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 4. 微調輔助樣式 */
         .touch-btn { min-height: 48px; min-width: 48px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        /* 隱藏 Input type=number 的原生上下微調按鈕 */
+        
+        /* 隱藏 Input type=number 原生按鈕 */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; 
@@ -27,22 +54,6 @@
         }
         input[type=number] {
             -moz-appearance: textfield;
-        }
-        /* 徹底鎖定背景主畫面，防止左右晃動與背景滾動 */
-        html, body {
-            width: 100%;
-            max-width: 100%;
-            height: 100%;
-            overflow-x: hidden !important;
-            overflow-y: hidden !important;
-            position: fixed;
-            position: relative;
-        }
-        /* 讓主容器內部可以正常捲動 */
-        #app {
-            height: 100vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
