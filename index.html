@@ -50,14 +50,15 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        button, h1, h2, h3, span, p, label {
-            word-break: break-word;
+        /* 避免單字中途斷行，英文一律保持單字完整性 */
+        .normal-wrap {
+            word-break: normal;
             overflow-wrap: break-word;
         }
 
         .sale-type-btn {
             white-space: normal !important;
-            word-break: break-word;
+            word-break: normal;
         }
     </style>
 </head>
@@ -128,18 +129,18 @@
             <div id="pos-screen" class="hidden flex-1 flex flex-col justify-center space-y-6 max-w-xl w-full mx-auto my-auto">
 
                 <!-- 全場累積總金額看板 (Grand Total Sales Banner) -->
-                <section class="bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-3xl p-6 shadow-lg flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+                <section class="bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-3xl p-5 sm:p-6 shadow-lg flex items-center justify-between">
+                    <div class="flex items-center space-x-3.5">
+                        <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center flex-shrink-0">
                             <i class="fa-solid fa-sack-dollar text-2xl text-white"></i>
                         </div>
                         <div>
-                            <span class="text-xs font-bold uppercase tracking-wider text-amber-100 block" data-i18n="grandTotalLabel">Grand Total Revenue</span>
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-100 block" data-i18n="grandTotalLabel">Grand Total Revenue</span>
                             <span class="text-xs text-amber-100 font-medium" data-i18n="grandTotalSub">All Active Transactions</span>
                         </div>
                     </div>
                     <div class="text-right">
-                        <span id="grand-total-amount" class="text-3xl font-black tracking-tight block">MOP 0</span>
+                        <span id="grand-total-amount" class="text-2xl sm:text-3xl font-black tracking-tight block">MOP 0</span>
                     </div>
                 </section>
 
@@ -155,9 +156,9 @@
     </div>
 
     <!-- MODAL 0: BRAND DETAIL POPUP (點擊背景空白處即可關閉) -->
-    <div id="modal-brand-detail" onclick="closeBrandDetailModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden flex items-center justify-center p-4">
-        <div onclick="event.stopPropagation()" class="bg-white border border-slate-200 w-full max-w-xl rounded-3xl p-6 shadow-2xl space-y-4 relative animate-in fade-in zoom-in duration-150">
-            <button onclick="closeBrandDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-2 touch-btn">
+    <div id="modal-brand-detail" onclick="closeBrandDetailModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden flex items-center justify-center p-3 sm:p-4">
+        <div onclick="event.stopPropagation()" class="bg-white border border-slate-200 w-full max-w-xl rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 relative animate-in fade-in zoom-in duration-150">
+            <button onclick="closeBrandDetailModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-slate-700 p-2 touch-btn z-10">
                 <i class="fa-solid fa-xmark text-2xl"></i>
             </button>
             <div id="brand-detail-content">
@@ -171,8 +172,8 @@
         <div class="bg-white border border-slate-200 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-5 animate-in slide-in-from-bottom duration-200">
             <div class="flex justify-between items-start border-b border-slate-100 pb-3.5">
                 <div>
-                    <span id="modal-sale-code" class="text-xs font-mono font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md border border-amber-200">CODE</span>
-                    <h3 id="modal-sale-title" class="text-lg font-bold text-slate-900 mt-2 leading-snug">Product Title</h3>
+                    <span id="modal-sale-code" class="text-xs font-mono font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md border border-amber-200 whitespace-nowrap">CODE</span>
+                    <h3 id="modal-sale-title" class="text-lg font-bold text-slate-900 mt-2 leading-snug normal-wrap">Product Title</h3>
                 </div>
                 <button onclick="closeSaleModal()" class="text-slate-400 hover:text-slate-700 p-1.5 touch-btn">
                     <i class="fa-solid fa-xmark text-2xl"></i>
@@ -233,7 +234,7 @@
         <div class="bg-white border border-slate-200 w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[85vh] flex flex-col space-y-4">
             <div class="flex justify-between items-start border-b border-slate-100 pb-3.5">
                 <div>
-                    <h3 id="modal-hist-title" class="text-lg font-bold text-slate-900">Item Sales Log</h3>
+                    <h3 id="modal-hist-title" class="text-lg font-bold text-slate-900 normal-wrap">Item Sales Log</h3>
                     <p id="modal-hist-subtitle" class="text-xs text-slate-500 font-medium mt-0.5">Manage and void erroneous entries</p>
                 </div>
                 <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-slate-700 p-1.5 touch-btn">
@@ -544,12 +545,12 @@
                     : `<i class="fa-solid fa-beer-mug-empty text-2xl"></i>`;
 
                 return `
-                    <button onclick="openBrandDetailModal('${item.brand}')" class="w-full bg-white hover:bg-amber-50/80 border-2 border-slate-200 hover:border-amber-500 rounded-2xl p-4 shadow-sm hover:shadow-md transition flex items-center touch-btn group">
-                        <div class="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-amber-700 font-extrabold group-hover:border-amber-400 transition flex-shrink-0 mr-4 overflow-hidden p-1.5 shadow-inner">
+                    <button onclick="openBrandDetailModal('${item.brand}')" class="w-full bg-white hover:bg-amber-50/80 border-2 border-slate-200 hover:border-amber-500 rounded-2xl p-3.5 sm:p-4 shadow-sm hover:shadow-md transition flex items-center touch-btn group">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-amber-700 font-extrabold group-hover:border-amber-400 transition flex-shrink-0 mr-3.5 sm:mr-4 overflow-hidden p-1 shadow-inner">
                             ${logoHtml}
                         </div>
                         <div class="flex-1 text-left">
-                            <h3 class="text-xl font-black text-slate-900 tracking-tight">${item.brand}</h3>
+                            <h3 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight normal-wrap">${item.brand}</h3>
                         </div>
                     </button>
                 `;
@@ -570,7 +571,7 @@
             activeDetailBrand = null;
         };
 
-        // 渲染品牌詳細資訊卡片內容
+        // 渲染品牌詳細資訊卡片內容（已改善手機版英文完整性與計數按鈕完整顯示）
         function renderBrandDetailContent(item) {
             const container = document.getElementById('brand-detail-content');
             if (!container) return;
@@ -599,34 +600,34 @@
             const priceText = item.p1 === 50 ? dict.labelP1P2 : dict.labelP1P2_70;
 
             container.innerHTML = `
-                <div class="space-y-4 pt-1">
-                    <div class="flex justify-between items-start pr-8">
-                        <div>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-0.5 rounded-md">
+                <div class="space-y-3.5 sm:space-y-4 pt-1">
+                    <div class="flex justify-between items-start pr-7">
+                        <div class="space-y-1.5 flex-1 pr-2">
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md whitespace-nowrap">
                                     #${item.id} · ${item.code}
                                 </span>
-                                <span class="text-xs bg-slate-100 text-slate-700 font-bold px-2.5 py-0.5 rounded-md">${item.brand}</span>
+                                <span class="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-md whitespace-nowrap">${item.brand}</span>
                             </div>
-                            <h3 class="text-xl font-black text-slate-900 mt-2 leading-snug">${displayName}</h3>
+                            <h3 class="text-lg sm:text-xl font-black text-slate-900 leading-snug normal-wrap">${displayName}</h3>
                             
-                            <div class="flex flex-wrap gap-2 mt-2 text-xs font-bold text-slate-600">
-                                <span class="bg-amber-50 text-amber-900 border border-amber-200 px-2.5 py-1 rounded-md">${priceText}</span>
-                                <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-md">FREE: MOP ${item.p5}</span>
+                            <div class="flex flex-wrap gap-1.5 text-xs font-bold text-slate-600 pt-0.5">
+                                <span class="bg-amber-50 text-amber-900 border border-amber-200 px-2.5 py-1 rounded-md whitespace-nowrap">${priceText}</span>
+                                <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-md whitespace-nowrap">FREE: MOP ${item.p5}</span>
                             </div>
                         </div>
                         
-                        <button onclick="openHistoryModal('${item.code}')" class="text-slate-500 hover:text-amber-700 p-2.5 touch-btn flex flex-col items-center justify-center bg-slate-50 hover:bg-amber-50 rounded-2xl border border-slate-200 shadow-sm transition">
-                            <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                        <button onclick="openHistoryModal('${item.code}')" class="text-slate-500 hover:text-amber-700 p-2 sm:p-2.5 touch-btn flex flex-col items-center justify-center bg-slate-50 hover:bg-amber-50 rounded-2xl border border-slate-200 shadow-sm transition flex-shrink-0">
+                            <i class="fa-solid fa-clock-rotate-left text-base sm:text-lg"></i>
                             <span class="text-[10px] mt-0.5 font-bold">Log</span>
                         </button>
                     </div>
 
                     <!-- FREE QTY TRACKER BANNER -->
                     <div class="p-3 rounded-2xl border text-xs font-bold ${isOverLimit ? 'bg-red-50 border-red-200 text-red-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'} flex items-center justify-between shadow-sm">
-                        <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-1.5">
                             <i class="fa-solid ${isOverLimit ? 'fa-triangle-exclamation text-red-600' : 'fa-gift text-emerald-600'} text-base"></i>
-                            <span>${dict.freeProgress}</span>
+                            <span class="whitespace-nowrap">${dict.freeProgress}</span>
                         </div>
                         <div class="text-right">
                             <span class="font-black text-base ${isOverLimit ? 'text-red-700' : 'text-emerald-700'}">${freeGiven} / ${maxFree}</span>
@@ -636,39 +637,39 @@
                         </div>
                     </div>
 
-                    <!-- Real-time Sales Counter Badges -->
-                    <div class="grid grid-cols-5 gap-2 text-center bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
-                        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
-                            <span class="block text-[10px] text-slate-500 font-bold truncate">${dict.badgeP1}</span>
-                            <span class="text-sm font-black text-amber-600 mt-0.5 block">${cP1}</span>
+                    <!-- Real-time Sales Counter Badges (修復手機顯示截斷問題) -->
+                    <div class="grid grid-cols-5 gap-1 sm:gap-2 text-center bg-slate-50 p-1.5 sm:p-2.5 rounded-2xl border border-slate-200">
+                        <div class="bg-white p-1 sm:p-2 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                            <span class="block text-[10px] text-slate-500 font-bold leading-tight normal-wrap">${dict.badgeP1}</span>
+                            <span class="text-xs sm:text-sm font-black text-amber-600 mt-1 block">${cP1}</span>
                         </div>
-                        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
-                            <span class="block text-[10px] text-slate-500 font-bold truncate">${dict.badgeP2}</span>
-                            <span class="text-sm font-black text-amber-600 mt-0.5 block">${cP2}</span>
+                        <div class="bg-white p-1 sm:p-2 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                            <span class="block text-[10px] text-slate-500 font-bold leading-tight normal-wrap">${dict.badgeP2}</span>
+                            <span class="text-xs sm:text-sm font-black text-amber-600 mt-1 block">${cP2}</span>
                         </div>
-                        <div class="bg-purple-50/70 p-2 rounded-xl border border-purple-200 shadow-sm">
-                            <span class="block text-[10px] text-purple-700 font-bold truncate">${dict.badgeP3}</span>
-                            <span class="text-sm font-black text-purple-700 mt-0.5 block">${cP3}</span>
+                        <div class="bg-purple-50/70 p-1 sm:p-2 rounded-xl border border-purple-200 shadow-sm flex flex-col justify-between">
+                            <span class="block text-[10px] text-purple-700 font-bold leading-tight normal-wrap">${dict.badgeP3}</span>
+                            <span class="text-xs sm:text-sm font-black text-purple-700 mt-1 block">${cP3}</span>
                         </div>
-                        <div class="bg-purple-50/70 p-2 rounded-xl border border-purple-200 shadow-sm">
-                            <span class="block text-[10px] text-purple-700 font-bold truncate">${dict.badgeP4}</span>
-                            <span class="text-sm font-black text-purple-700 mt-0.5 block">${cP4}</span>
+                        <div class="bg-purple-50/70 p-1 sm:p-2 rounded-xl border border-purple-200 shadow-sm flex flex-col justify-between">
+                            <span class="block text-[10px] text-purple-700 font-bold leading-tight normal-wrap">${dict.badgeP4}</span>
+                            <span class="text-xs sm:text-sm font-black text-purple-700 mt-1 block">${cP4}</span>
                         </div>
-                        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
-                            <span class="block text-[10px] text-slate-500 font-bold truncate">${dict.badgeFree}</span>
-                            <span class="text-sm font-black ${isOverLimit ? 'text-red-600' : 'text-emerald-600'} mt-0.5 block">${cP5}</span>
+                        <div class="bg-white p-1 sm:p-2 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                            <span class="block text-[10px] text-slate-500 font-bold leading-tight normal-wrap">${dict.badgeFree}</span>
+                            <span class="text-xs sm:text-sm font-black ${isOverLimit ? 'text-red-600' : 'text-emerald-600'} mt-1 block">${cP5}</span>
                         </div>
                     </div>
 
                     <!-- Price Info & Quick Action Button -->
                     <div class="flex items-center justify-between pt-2">
-                        <div class="text-xs font-medium">
+                        <div class="text-xs font-medium pr-2">
                             <span class="text-slate-500 block">${dict.accumulatedTotal}</span>
-                            <span class="text-amber-800 font-black text-xl">MOP ${totalVal.toLocaleString()}</span>
+                            <span class="text-amber-800 font-black text-lg sm:text-xl">MOP ${totalVal.toLocaleString()}</span>
                         </div>
-                        <button onclick="openSaleModal('${item.code}')" class="bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-lg transition flex items-center space-x-2 touch-btn">
-                            <i class="fa-solid fa-plus text-sm pointer-events-none"></i>
-                            <span class="pointer-events-none">Log Sale</span>
+                        <button onclick="openSaleModal('${item.code}')" class="bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white px-4 sm:px-5 py-3 rounded-2xl font-bold text-xs sm:text-sm shadow-lg transition flex items-center space-x-1.5 sm:space-x-2 touch-btn flex-shrink-0">
+                            <i class="fa-solid fa-plus text-xs sm:text-sm pointer-events-none"></i>
+                            <span class="pointer-events-none whitespace-nowrap">Log Sale</span>
                         </button>
                     </div>
                 </div>
