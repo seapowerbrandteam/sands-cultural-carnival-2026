@@ -50,7 +50,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* 避免單字中途斷行，英文一律保持單字完整性 */
         .normal-wrap {
             word-break: normal;
             overflow-wrap: break-word;
@@ -155,77 +154,15 @@
         </main>
     </div>
 
-    <!-- MODAL 0: BRAND DETAIL POPUP (點擊背景空白處即可關閉) -->
+    <!-- MODAL 0: BRAND DETAIL POPUP -->
     <div id="modal-brand-detail" onclick="closeBrandDetailModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden flex items-center justify-center p-3 sm:p-4">
-        <div onclick="event.stopPropagation()" class="bg-white border border-slate-200 w-full max-w-xl rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 relative animate-in fade-in zoom-in duration-150">
+        <div onclick="event.stopPropagation()" class="bg-white border border-slate-200 w-full max-w-xl rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 relative animate-in fade-in zoom-in duration-150 max-h-[90vh] overflow-y-auto no-scrollbar">
             <button onclick="closeBrandDetailModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-slate-700 p-2 touch-btn z-10">
                 <i class="fa-solid fa-xmark text-2xl"></i>
             </button>
             <div id="brand-detail-content">
-                <!-- 動態注入品牌卡片細節 -->
+                <!-- 動態注入品牌卡片細節與直接選數量/類型的介面 -->
             </div>
-        </div>
-    </div>
-
-    <!-- MODAL 1: RECORD TRANSACTION MODAL -->
-    <div id="modal-sale" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white border border-slate-200 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-5 animate-in slide-in-from-bottom duration-200">
-            <div class="flex justify-between items-start border-b border-slate-100 pb-3.5">
-                <div>
-                    <span id="modal-sale-code" class="text-xs font-mono font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md border border-amber-200 whitespace-nowrap">CODE</span>
-                    <h3 id="modal-sale-title" class="text-lg font-bold text-slate-900 mt-2 leading-snug normal-wrap">Product Title</h3>
-                </div>
-                <button onclick="closeSaleModal()" class="text-slate-400 hover:text-slate-700 p-1.5 touch-btn">
-                    <i class="fa-solid fa-xmark text-2xl"></i>
-                </button>
-            </div>
-
-            <!-- Transaction Type Options -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" data-i18n="selectType">Select Transaction Type</label>
-                <div class="grid grid-cols-2 gap-2.5">
-                    <button type="button" onclick="selectSaleType('p1')" id="type-p1" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
-                        <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-beer-mug-empty text-amber-600 mr-1"></i> <span data-i18n="typeP1">一般單杯 (500ml)</span></span>
-                        <span id="price-label-p1" class="text-xs text-amber-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
-                    </button>
-
-                    <button type="button" onclick="selectSaleType('p2')" id="type-p2" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 active:bg-amber-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
-                        <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-wine-glass-drop text-amber-600 mr-1"></i> <span data-i18n="typeP2">一般兩杯優惠 (500ml)</span></span>
-                        <span id="price-label-p2" class="text-xs text-amber-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
-                    </button>
-
-                    <button type="button" onclick="selectSaleType('p3')" id="type-p3" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 active:bg-purple-200 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
-                        <span class="text-xs font-bold text-purple-950 pointer-events-none"><i class="fa-solid fa-crown text-purple-600 mr-1"></i> <span data-i18n="typeP3">VIP 單杯 (500ml)</span></span>
-                        <span id="price-label-p3" class="text-xs text-purple-800 font-extrabold mt-1 pointer-events-none">MOP 0</span>
-                    </button>
-
-                    <button type="button" onclick="selectSaleType('p4')" id="type-p4" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 active:bg-purple-200 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
-                        <span class="text-xs font-bold text-purple-950 pointer-events-none"><i class="fa-solid fa-award text-purple-600 mr-1"></i> <span data-i18n="typeP4">VIP 兩杯優惠 (500ml)</span></span>
-                        <span id="price-label-p4" class="text-xs text-purple-800 font-extrabold mt-1 pointer-events-none">MOP 0</span>
-                    </button>
-
-                    <button type="button" onclick="selectSaleType('p5')" id="type-p5" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-emerald-50 active:bg-emerald-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm col-span-2">
-                        <span class="text-xs font-bold text-emerald-800 pointer-events-none"><i class="fa-solid fa-gift text-emerald-600 mr-1"></i> <span data-i18n="typeP5">FREE 330ml</span></span>
-                        <span id="price-label-p5" class="text-xs text-emerald-700 font-extrabold mt-1 pointer-events-none">MOP 0</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Quantity Selector -->
-            <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl p-2 px-4 shadow-sm">
-                <span class="text-sm font-bold text-slate-700" data-i18n="qty">Quantity</span>
-                <div class="flex items-center space-x-3">
-                    <button type="button" onclick="adjustModalQty(-1)" class="w-10 h-10 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 font-bold text-lg flex items-center justify-center shadow-sm">-</button>
-                    <input type="number" id="modal-sale-qty" inputmode="numeric" pattern="[0-9]*" value="1" min="1" onfocus="this.select()" onchange="onQtyInputChange(this.value)" class="w-16 h-10 text-center font-extrabold text-amber-700 text-lg bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-inner" />
-                    <button type="button" onclick="adjustModalQty(1)" class="w-10 h-10 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 font-bold text-lg flex items-center justify-center shadow-sm">+</button>
-                </div>
-            </div>
-
-            <!-- Submit Button -->
-            <button id="btn-confirm-sale" onclick="submitSaleRecord()" class="w-full bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold py-4 rounded-2xl transition shadow-lg text-base touch-btn flex items-center justify-center space-x-2">
-                <i class="fa-solid fa-check text-lg"></i>
-                <span data-i18n="btnConfirmSale">Confirm Log Entry</span>
-            </button>
         </div>
     </div>
 
@@ -286,10 +223,10 @@
                 grandTotalLabel: "Grand Total Revenue",
                 grandTotalSub: "All Active Transactions",
                 selectType: "Select Transaction Type",
-                typeP1: "Std Single Cup 500ml",
-                typeP2: "Std 2-Cups Offer 500ml",
-                typeP3: "VIP Single Cup 500ml",
-                typeP4: "VIP 2-Cups Offer 500ml",
+                typeP1: "Std Single Cup (500ml)",
+                typeP2: "Std 2-Cups Offer (500ml)",
+                typeP3: "VIP Single Cup (500ml)",
+                typeP4: "VIP 2-Cups Offer (500ml)",
                 typeP5: "FREE 330ml",
                 qty: "Quantity",
                 btnConfirmSale: "Confirm Log Entry",
@@ -320,10 +257,10 @@
                 grandTotalLabel: "全場累積總金額",
                 grandTotalSub: "所有有效交易紀錄合計",
                 selectType: "選擇交易類型",
-                typeP1: "一般單杯 500ml",
-                typeP2: "一般兩杯優惠 500ml",
-                typeP3: "VIP 單杯 500ml",
-                typeP4: "VIP 兩杯優惠 500ml",
+                typeP1: "一般單杯 (500ml)",
+                typeP2: "一般兩杯優惠 (500ml)",
+                typeP3: "VIP 單杯 (500ml)",
+                typeP4: "VIP 兩杯優惠 (500ml)",
                 typeP5: "FREE 330ml",
                 qty: "數量",
                 btnConfirmSale: "確認記錄",
@@ -347,10 +284,9 @@
 
         let currentLang = 'en';
         let currentUser = '';
-        let selectedProduct = null;
+        let activeDetailBrand = null;
         let activeSaleType = 'p1';
         let selectedQty = 1;
-        let activeDetailBrand = null;
 
         const STORAGE_KEY_USER = 'seapower_event_user';
         const STORAGE_KEY_SALES = 'seapower_event_sales_fallback';
@@ -534,7 +470,6 @@
             }
         }
 
-        // 渲染主畫面的 5 個品牌獨立按鈕
         function renderBrandButtons() {
             const container = document.getElementById('brand-buttons-container');
             if (!container) return;
@@ -557,10 +492,12 @@
             }).join('');
         }
 
-        // 開啟品牌卡片彈窗
         window.openBrandDetailModal = function(brandName) {
             activeDetailBrand = BEER_DATA.find(p => p.brand === brandName);
             if (!activeDetailBrand) return;
+
+            activeSaleType = 'p1';
+            selectedQty = 1;
 
             renderBrandDetailContent(activeDetailBrand);
             document.getElementById('modal-brand-detail').classList.remove('hidden');
@@ -571,7 +508,63 @@
             activeDetailBrand = null;
         };
 
-        // 渲染品牌詳細資訊卡片內容（已改善手機版英文完整性與計數按鈕完整顯示）
+        window.selectSaleTypeInline = function(type) {
+            activeSaleType = type;
+            if (activeDetailBrand) {
+                renderBrandDetailContent(activeDetailBrand);
+            }
+        };
+
+        window.adjustInlineQty = function(delta) {
+            selectedQty = Math.max(1, selectedQty + delta);
+            if (activeDetailBrand) {
+                renderBrandDetailContent(activeDetailBrand);
+            }
+        };
+
+        window.onInlineQtyChange = function(val) {
+            let num = parseInt(val, 10);
+            if (isNaN(num) || num < 1) num = 1;
+            selectedQty = num;
+            if (activeDetailBrand) {
+                renderBrandDetailContent(activeDetailBrand);
+            }
+        };
+
+        window.submitInlineSaleRecord = async function() {
+            if (!activeDetailBrand) return;
+
+            const record = {
+                code: activeDetailBrand.code,
+                productEn: activeDetailBrand.descEn,
+                productZh: activeDetailBrand.descZh,
+                type: activeSaleType,
+                qty: selectedQty,
+                user: currentUser,
+                timestamp: new Date().toISOString(),
+                isVoided: false
+            };
+
+            try {
+                if (isFirebaseConnected && db) {
+                    const salesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'sales_records');
+                    await addDoc(salesColRef, record);
+                } else {
+                    record.id = 'loc_' + Date.now();
+                    salesRecords.push(record);
+                    saveLocalSalesFallback();
+                    updateDashboardAndCard();
+                }
+                showToast('Sale logged successfully / 記錄成功!');
+                
+                selectedQty = 1;
+                updateDashboardAndCard();
+            } catch (err) {
+                console.error("Error saving sale record:", err);
+                showToast('Failed to save record.');
+            }
+        };
+
         function renderBrandDetailContent(item) {
             const container = document.getElementById('brand-detail-content');
             if (!container) return;
@@ -599,8 +592,21 @@
 
             const priceText = item.p1 === 50 ? dict.labelP1P2 : dict.labelP1P2_70;
 
+            const getBtnStyle = (type, isVip = false) => {
+                const isSelected = activeSaleType === type;
+                if (isSelected) {
+                    return isVip 
+                        ? 'border-2 border-purple-600 bg-purple-100 ring-2 ring-purple-500 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm'
+                        : 'border-2 border-amber-600 bg-amber-50/80 ring-2 ring-amber-500 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm';
+                } else {
+                    return isVip
+                        ? 'border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm'
+                        : 'border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm';
+                }
+            };
+
             container.innerHTML = `
-                <div class="space-y-3.5 sm:space-y-4 pt-1">
+                <div class="space-y-3.5 pt-1">
                     <div class="flex justify-between items-start pr-7">
                         <div class="space-y-1.5 flex-1 pr-2">
                             <div class="flex flex-wrap items-center gap-1.5">
@@ -637,7 +643,7 @@
                         </div>
                     </div>
 
-                    <!-- Real-time Sales Counter Badges (修復手機顯示截斷問題) -->
+                    <!-- Real-time Sales Counter Badges -->
                     <div class="grid grid-cols-5 gap-1 sm:gap-2 text-center bg-slate-50 p-1.5 sm:p-2.5 rounded-2xl border border-slate-200">
                         <div class="bg-white p-1 sm:p-2 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
                             <span class="block text-[10px] text-slate-500 font-bold leading-tight normal-wrap">${dict.badgeP1}</span>
@@ -661,22 +667,61 @@
                         </div>
                     </div>
 
-                    <!-- Price Info & Quick Action Button -->
-                    <div class="flex items-center justify-between pt-2">
-                        <div class="text-xs font-medium pr-2">
-                            <span class="text-slate-500 block">${dict.accumulatedTotal}</span>
-                            <span class="text-amber-800 font-black text-lg sm:text-xl">MOP ${totalVal.toLocaleString()}</span>
+                    <!-- 交易類型選單（改用字典 key 支援多國語言） -->
+                    <div class="pt-1">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" data-i18n="selectType">Select Transaction Type</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="selectSaleTypeInline('p1')" class="sale-type-btn touch-btn ${getBtnStyle('p1')}">
+                                <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-beer-mug-empty text-amber-600 mr-1"></i> ${dict.typeP1}</span>
+                                <span class="text-xs text-amber-700 font-extrabold mt-1 pointer-events-none">MOP ${item.p1}</span>
+                            </button>
+
+                            <button type="button" onclick="selectSaleTypeInline('p2')" class="sale-type-btn touch-btn ${getBtnStyle('p2')}">
+                                <span class="text-xs font-bold text-slate-900 pointer-events-none"><i class="fa-solid fa-wine-glass-drop text-amber-600 mr-1"></i> ${dict.typeP2}</span>
+                                <span class="text-xs text-amber-700 font-extrabold mt-1 pointer-events-none">MOP ${item.p2}</span>
+                            </button>
+
+                            <button type="button" onclick="selectSaleTypeInline('p3')" class="sale-type-btn touch-btn ${getBtnStyle('p3', true)}">
+                                <span class="text-xs font-bold text-purple-950 pointer-events-none"><i class="fa-solid fa-crown text-purple-600 mr-1"></i> ${dict.typeP3}</span>
+                                <span class="text-xs text-purple-800 font-extrabold mt-1 pointer-events-none">MOP ${item.p3}</span>
+                            </button>
+
+                            <button type="button" onclick="selectSaleTypeInline('p4')" class="sale-type-btn touch-btn ${getBtnStyle('p4', true)}">
+                                <span class="text-xs font-bold text-purple-950 pointer-events-none"><i class="fa-solid fa-award text-purple-600 mr-1"></i> ${dict.typeP4}</span>
+                                <span class="text-xs text-purple-800 font-extrabold mt-1 pointer-events-none">MOP ${item.p4}</span>
+                            </button>
+
+                            <button type="button" onclick="selectSaleTypeInline('p5')" class="sale-type-btn touch-btn col-span-2 ${activeSaleType === 'p5' ? 'border-2 border-emerald-600 bg-emerald-100 ring-2 ring-emerald-500 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm' : 'border-2 border-slate-200 bg-slate-50 hover:bg-emerald-50 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm'}">
+                                <span class="text-xs font-bold text-emerald-800 pointer-events-none"><i class="fa-solid fa-gift text-emerald-600 mr-1"></i> ${dict.typeP5}</span>
+                                <span class="text-xs text-emerald-700 font-extrabold mt-1 pointer-events-none">MOP ${item.p5}</span>
+                            </button>
                         </div>
-                        <button onclick="openSaleModal('${item.code}')" class="bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white px-4 sm:px-5 py-3 rounded-2xl font-bold text-xs sm:text-sm shadow-lg transition flex items-center space-x-1.5 sm:space-x-2 touch-btn flex-shrink-0">
-                            <i class="fa-solid fa-plus text-xs sm:text-sm pointer-events-none"></i>
-                            <span class="pointer-events-none whitespace-nowrap">Log Sale</span>
+                    </div>
+
+                    <!-- 數量增減與確認按鈕 -->
+                    <div class="flex items-center space-x-3 pt-1">
+                        <div class="flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded-2xl p-1.5 px-3 shadow-sm">
+                            <span class="text-xs font-bold text-slate-700 mr-1" data-i18n="qty">Quantity</span>
+                            <button type="button" onclick="adjustInlineQty(-1)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 font-bold text-base flex items-center justify-center shadow-sm">-</button>
+                            <input type="number" id="inline-sale-qty" inputmode="numeric" pattern="[0-9]*" value="${selectedQty}" min="1" onfocus="this.select()" onchange="onInlineQtyChange(this.value)" class="w-14 h-9 text-center font-extrabold text-amber-700 text-base bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-inner" />
+                            <button type="button" onclick="adjustInlineQty(1)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 font-bold text-base flex items-center justify-center shadow-sm">+</button>
+                        </div>
+
+                        <button onclick="submitInlineSaleRecord()" class="flex-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white py-3.5 px-4 rounded-2xl font-bold text-sm shadow-lg transition flex items-center justify-center space-x-2 touch-btn">
+                            <i class="fa-solid fa-check text-base"></i>
+                            <span data-i18n="btnConfirmSale">Confirm Log Entry</span>
                         </button>
+                    </div>
+
+                    <!-- 累積總金額顯示 -->
+                    <div class="flex items-center justify-between pt-1 border-t border-slate-100 text-xs">
+                        <span class="text-slate-500 font-medium">${dict.accumulatedTotal}</span>
+                        <span class="text-amber-800 font-black text-base">MOP ${totalVal.toLocaleString()}</span>
                     </div>
                 </div>
             `;
         }
 
-        // 更新 Grand Total 及目前打開的 Card 內容
         function updateDashboardAndCard() {
             const activeLogs = salesRecords.filter(r => !r.isVoided);
             let overallGrandTotal = 0;
@@ -741,108 +786,6 @@
             document.getElementById('btn-export').addEventListener('click', exportToExcel);
         }
 
-        // SALE MODAL FUNCTIONS
-        window.openSaleModal = function(code) {
-            selectedProduct = BEER_DATA.find(p => p.code === code);
-            if (!selectedProduct) return;
-
-            activeSaleType = 'p1';
-            selectedQty = 1;
-
-            document.getElementById('modal-sale-code').innerText = selectedProduct.code;
-            document.getElementById('modal-sale-title').innerText = currentLang === 'en' ? selectedProduct.descEn : selectedProduct.descZh;
-
-            document.getElementById('price-label-p1').innerText = `MOP ${selectedProduct.p1}`;
-            document.getElementById('price-label-p2').innerText = `MOP ${selectedProduct.p2}`;
-            document.getElementById('price-label-p3').innerText = `MOP ${selectedProduct.p3}`;
-            document.getElementById('price-label-p4').innerText = `MOP ${selectedProduct.p4}`;
-            document.getElementById('price-label-p5').innerText = `MOP ${selectedProduct.p5}`;
-
-            document.getElementById('modal-sale-qty').value = selectedQty;
-
-            selectSaleType('p1');
-            document.getElementById('modal-sale').classList.remove('hidden');
-        };
-
-        window.closeSaleModal = function() {
-            document.getElementById('modal-sale').classList.add('hidden');
-        };
-
-        window.selectSaleType = function(type) {
-            activeSaleType = type;
-
-            document.querySelectorAll('.sale-type-btn').forEach(btn => {
-                btn.classList.remove('border-amber-600', 'bg-amber-50/80', 'ring-2', 'ring-amber-500');
-                btn.classList.remove('border-purple-600', 'bg-purple-100', 'ring-2', 'ring-purple-500');
-                
-                if (btn.id === 'type-p3' || btn.id === 'type-p4') {
-                    btn.classList.add('border-purple-200', 'bg-purple-50/50');
-                } else {
-                    btn.classList.add('border-slate-200', 'bg-slate-50');
-                }
-            });
-
-            const activeBtn = document.getElementById(`type-${type}`);
-            if (activeBtn) {
-                activeBtn.classList.remove('border-slate-200', 'bg-slate-50', 'border-purple-200', 'bg-purple-50/50');
-                
-                if (type === 'p3' || type === 'p4') {
-                    activeBtn.classList.add('border-purple-600', 'bg-purple-100', 'ring-2', 'ring-purple-500');
-                } else {
-                    activeBtn.classList.add('border-amber-600', 'bg-amber-50/80', 'ring-2', 'ring-amber-500');
-                }
-            }
-        };
-
-        window.onQtyInputChange = function(val) {
-            let num = parseInt(val, 10);
-            if (isNaN(num) || num < 1) num = 1;
-            selectedQty = num;
-            document.getElementById('modal-sale-qty').value = selectedQty;
-        };
-
-        window.adjustModalQty = function(delta) {
-            selectedQty = Math.max(1, selectedQty + delta);
-            document.getElementById('modal-sale-qty').value = selectedQty;
-        };
-
-        window.submitSaleRecord = async function() {
-            if (!selectedProduct) return;
-
-            const inputVal = parseInt(document.getElementById('modal-sale-qty').value, 10);
-            selectedQty = (isNaN(inputVal) || inputVal < 1) ? 1 : inputVal;
-
-            const record = {
-                code: selectedProduct.code,
-                productEn: selectedProduct.descEn,
-                productZh: selectedProduct.descZh,
-                type: activeSaleType,
-                qty: selectedQty,
-                user: currentUser,
-                timestamp: new Date().toISOString(),
-                isVoided: false
-            };
-
-            try {
-                if (isFirebaseConnected && db) {
-                    const salesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'sales_records');
-                    await addDoc(salesColRef, record);
-                } else {
-                    record.id = 'loc_' + Date.now();
-                    salesRecords.push(record);
-                    saveLocalSalesFallback();
-                    updateDashboardAndCard();
-                }
-                showToast('Sale logged successfully / 記錄成功!');
-            } catch (err) {
-                console.error("Error saving sale record:", err);
-                showToast('Failed to save record.');
-            }
-
-            closeSaleModal();
-        };
-
-        // ITEM HISTORY & VOID MODAL
         window.openHistoryModal = function(code) {
             const product = BEER_DATA.find(p => p.code === code);
             if (!product) return;
@@ -923,7 +866,6 @@
             }
         };
 
-        // EXCEL REPORT GENERATOR
         function exportToExcel() {
             const activeLogs = salesRecords.filter(r => !r.isVoided);
 
