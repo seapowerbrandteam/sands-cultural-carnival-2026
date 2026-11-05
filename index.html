@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>Sands Cultural Carnival - Seapower</title>
+    <title>Sands Cultural Carnival - Seapower POS Tracker</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -28,7 +28,7 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
-        /* 鎖定 body 與 html，禁止水平滑動並固定背景防止滾動 */
+        /* 徹底鎖定背景主畫面，防止左右晃動與背景滾動 */
         html, body {
             width: 100%;
             max-width: 100%;
@@ -38,7 +38,7 @@
             position: fixed;
             position: relative;
         }
-        /* 讓主容器內部可以滾動 */
+        /* 讓主容器內部可以正常捲動 */
         #app {
             height: 100vh;
             overflow-y: auto;
