@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sands Cultural Carnival - Seapower POS Tracker</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        /* 禁止整個頁面的 touch 縮放/雙擊放大，同時保持滾動能力 */
+        html, body, button, input, div {
+            touch-action: manipulation;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .touch-btn { min-height: 48px; min-width: 48px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* 隱藏 Input type=number 的原生上下微調按鈕 */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-white">
+
+    <!-- App Container -->
+    <div id="app" class="flex-1 flex flex-col max-w-4xl w-full mx-auto pb-8">
+
+        <!-- Header -->
+        <header class="bg-white border-b border-amber-200 sticky top-0 z-30 px-4 py-3.5 flex items-center justify-between shadow-sm">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-amber-600 text-white rounded-xl flex items-center justify-center shadow-md">
+                    <i class="fa-solid fa-beer-mug-empty text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-amber-900 leading-tight" id="header-title">Sands Cultural Carnival - Seapower</h1>
+                    <span id="user-badge" class="text-xs font-semibold text-slate-500 hidden flex items-center mt-0.5">
+                        <i class="fa-solid fa-user-check text-amber-600 mr-1.5"></i><span id="display-user-name"></span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <!-- Language Selector -->
+                <button id="btn-lang" class="bg-amber-50 hover:bg-amber-100 border border-amber-300 px-3.5 py-2 rounded-xl text-xs font-bold text-amber-800 transition touch-btn flex items-center shadow-sm">
+                    繁體中文
+                </button>
+                <!-- Export Excel Button -->
+                <button id="btn-export" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md touch-btn">
+                    <i class="fa-solid fa-file-excel text-sm"></i>
+                    <span data-i18n="exportReport">Export Report</span>
+                </button>
+                <!-- Clear Database Button -->
+                <button id="btn-clear" class="hidden bg-red-100 hover:bg-red-200 border border-red-300 text-red-700 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center touch-btn shadow-sm" title="Clear All Data">
+                    <i class="fa-solid fa-trash-can text-base"></i>
+                </button>
+                <!-- Logout Button -->
+                <button id="btn-logout" class="hidden bg-slate-100 hover:bg-red-50 hover:text-red-600 border border-slate-300 text-slate-600 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center touch-btn shadow-sm" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket text-base"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-4 sm:p-5 flex flex-col">
+
+            <!-- 1. LOGIN / AUTH MODAL -->
+            <div id="auth-screen" class="my-auto max-w-md w-full mx-auto bg-white border border-amber-100 p-7 rounded-3xl shadow-xl">
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
+                        <i class="fa-solid fa-lock text-amber-600 text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900" data-i18n="accessTitle">Event Access Required</h2>
+                    <p class="text-sm text-slate-500 mt-1" data-i18n="accessSubtitle">Enter password and your name to log sales.</p>
+                </div>
+
+                <form id="form-auth" class="space-y-5" onsubmit="return false;">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5" data-i18n="lblPassword">Access Password</label>
+                        <input type="password" id="input-pass" placeholder="•••••••" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 text-center tracking-widest text-xl font-bold shadow-sm" required />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5" data-i18n="lblUserName">Your Name / Staff ID</label>
+                        <input type="text" id="input-name" placeholder="e.g. Alex" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3.5 text-slate-900 text-base font-semibold placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" required />
+                    </div>
+                    <button type="submit" id="btn-login" class="w-full bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold py-4 rounded-xl transition shadow-lg text-base touch-btn">
+                        <span data-i18n="btnLogin">Enter System</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- 2. MAIN POS INTERFACE -->
+            <div id="pos-screen" class="hidden flex-1 flex flex-col space-y-5">
+
+                <!-- FILTERS SECTION (SINGLE-LEVEL BRAND FILTER) -->
+                <section class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-500 px-1">
+                        <span class="flex items-center"><i class="fa-solid fa-filter text-amber-600 mr-1.5 text-sm"></i> <span data-i18n="filterTitle">Product Filter</span></span>
+                        <button id="btn-reset-filters" class="text-amber-600 hover:text-amber-800 font-bold hidden text-xs" data-i18n="resetFilters">Reset Filters</button>
+                    </div>
+
+                    <!-- Single-Level Brand Filter Buttons -->
+                    <div id="brand-container">
+                        <label class="block text-xs font-bold text-slate-600 mb-2" data-i18n="lblBrand">Brand</label>
+                        <div id="brand-pills" class="flex flex-wrap gap-2">
+                            <!-- Brand pills dynamically populated -->
+                        </div>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative pt-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-5 text-slate-400 text-sm"></i>
+                        <input type="text" id="input-search" placeholder="Search Code or Product Name..." class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-sm">
+                    </div>
+                </section>
+
+                <!-- PRODUCT LIST -->
+                <section class="flex-1 space-y-3.5">
+                    <div class="flex items-center justify-between px-1">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider" data-i18n="productList">Product Catalog</span>
+                        <span id="product-count" class="text-xs bg-amber-100 text-amber-800 font-extrabold px-2.5 py-1 rounded-full border border-amber-200">0 items</span>
+                    </div>
+
+                    <div id="product-list-container" class="space-y-3.5">
+                        <!-- Products will be injected here dynamically -->
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL 1: RECORD TRANSACTION MODAL -->
+    <div id="modal-sale" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white border border-slate-200 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-5 animate-in slide-in-from-bottom duration-200">
+            <div class="flex justify-between items-start border-b border-slate-100 pb-3.5">
+                <div>
+                    <span id="modal-sale-code" class="text-xs font-mono font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md border border-amber-200">CODE</span>
+                    <h3 id="modal-sale-title" class="text-lg font-bold text-slate-900 mt-2 leading-snug">Product Title</h3>
+                </div>
+                <button onclick="closeSaleModal()" class="text-slate-400 hover:text-slate-700 p-1.5 touch-btn">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Transaction Type Options -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" data-i18n="selectType">Select Transaction Type</label>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <!-- 一般顧客 - 單杯 -->
+                    <button type="button" onclick="selectSaleType('p1')" id="type-p1" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
+                        <span class="text-xs font-bold text-slate-900"><i class="fa-solid fa-beer-mug-empty text-amber-600 mr-1"></i> <span data-i18n="typeP1">一般顧客單杯 (500ml)</span></span>
+                        <span id="price-label-p1" class="text-xs text-amber-700 font-extrabold mt-1">MOP 0</span>
+                    </button>
+
+                    <!-- 一般顧客 - 兩杯 -->
+                    <button type="button" onclick="selectSaleType('p2')" id="type-p2" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-amber-50 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
+                        <span class="text-xs font-bold text-slate-900"><i class="fa-solid fa-wine-glass-drop text-amber-600 mr-1"></i> <span data-i18n="typeP2">一般顧客兩杯優惠 (500ml)</span></span>
+                        <span id="price-label-p2" class="text-xs text-amber-700 font-extrabold mt-1">MOP 0</span>
+                    </button>
+
+                    <!-- VIP - 單杯 (紫色視覺區隔) -->
+                    <button type="button" onclick="selectSaleType('p3')" id="type-p3" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
+                        <span class="text-xs font-bold text-purple-950"><i class="fa-solid fa-crown text-purple-600 mr-1"></i> <span data-i18n="typeP3">VIP 單杯 (500ml)</span></span>
+                        <span id="price-label-p3" class="text-xs text-purple-800 font-extrabold mt-1">MOP 0</span>
+                    </button>
+
+                    <!-- VIP - 兩杯 (紫色視覺區隔) -->
+                    <button type="button" onclick="selectSaleType('p4')" id="type-p4" class="sale-type-btn touch-btn border-2 border-purple-200 bg-purple-50/50 hover:bg-purple-100 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm">
+                        <span class="text-xs font-bold text-purple-950"><i class="fa-solid fa-award text-purple-600 mr-1"></i> <span data-i18n="typeP4">VIP 兩杯優惠 (500ml)</span></span>
+                        <span id="price-label-p4" class="text-xs text-purple-800 font-extrabold mt-1">MOP 0</span>
+                    </button>
+
+                    <!-- FREE 330ml -->
+                    <button type="button" onclick="selectSaleType('p5')" id="type-p5" class="sale-type-btn touch-btn border-2 border-slate-200 bg-slate-50 hover:bg-emerald-50 p-3 rounded-2xl text-left flex flex-col justify-between transition shadow-sm col-span-2">
+                        <span class="text-xs font-bold text-emerald-800"><i class="fa-solid fa-gift text-emerald-600 mr-1"></i> <span data-i18n="typeP5">FREE 330ml</span></span>
+                        <span id="price-label-p5" class="text-xs text-emerald-700 font-extrabold mt-1">MOP 0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quantity Selector with Direct Number Input -->
+            <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl p-2 px-4 shadow-sm">
+                <span class="text-sm font-bold text-slate-700" data-i18n="qty">Quantity</span>
+                <div class="flex items-center space-x-3">
+                    <button type="button" onclick="adjustModalQty(-1)" class="w-10 h-10 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 font-bold text-lg flex items-center justify-center shadow-sm">-</button>
+                    <!-- 支持點擊彈出數字九宮格鍵盤 -->
+                    <input type="number" id="modal-sale-qty" inputmode="numeric" pattern="[0-9]*" value="1" min="1" onfocus="this.select()" onchange="onQtyInputChange(this.value)" class="w-16 h-10 text-center font-extrabold text-amber-700 text-lg bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-inner" />
+                    <button type="button" onclick="adjustModalQty(1)" class="w-10 h-10 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 font-bold text-lg flex items-center justify-center shadow-sm">+</button>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button id="btn-confirm-sale" onclick="submitSaleRecord()" class="w-full bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold py-4 rounded-2xl transition shadow-lg text-base touch-btn flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-check text-lg"></i>
+                <span data-i18n="btnConfirmSale">Confirm Log Entry</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 2: ITEM LOG & VOID MANAGEMENT -->
+    <div id="modal-history" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white border border-slate-200 w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[85vh] flex flex-col space-y-4">
+            <div class="flex justify-between items-start border-b border-slate-100 pb-3.5">
+                <div>
+                    <h3 id="modal-hist-title" class="text-lg font-bold text-slate-900">Item Sales Log</h3>
+                    <p id="modal-hist-subtitle" class="text-xs text-slate-500 font-medium mt-0.5">Manage and void erroneous entries</p>
+                </div>
+                <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-slate-700 p-1.5 touch-btn">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Log list container -->
+            <div id="modal-hist-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1 no-scrollbar my-2 min-h-[200px]">
+                <!-- Log entries dynamically injected -->
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 text-center">
+                <button onclick="closeHistoryModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-2xl text-sm">
+                    <span data-i18n="close">Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI TOAST MESSAGES -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-sm font-semibold px-5 py-3 rounded-2xl shadow-2xl z-50 hidden flex items-center space-x-2 border border-slate-700">
+        <i class="fa-solid fa-circle-info text-amber-400 text-base"></i>
+        <span id="toast-msg">Message</span>
+    </div>
+
+    <!-- FIREBASE MODULE & SCRIPT LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // PRODUCT DATA MATRIX
+        const BEER_DATA = [
+            { id: 1, brand: "San Miguel", code: "BSANM15DR", descEn: "San Miguel (Philippines) Draught", descZh: "生力啤酒(菲律賓)生啤酒", p1: 50, p2: 85, p3: 50, p4: 85, p5: 0, maxFree: 182 },
+            { id: 2, brand: "Kirin", code: "BKIRDR", descEn: "Kirin Ichiban Draught", descZh: "麒麟一番搾生啤酒", p1: 50, p2: 85, p3: 50, p4: 85, p5: 0, maxFree: 242 },
+            { id: 3, brand: "Budweiser", code: "BBUDDR-J", descEn: "Budweiser Beer Draught", descZh: "百威啤酒生啤酒", p1: 50, p2: 85, p3: 50, p4: 85, p5: 0, maxFree: 364 },
+            { id: 4, brand: "Hoegaarden", code: "BHOEDR20L-J", descEn: "Hoegaarden Draught", descZh: "好卡頓生啤酒", p1: 70, p2: 120, p3: 70, p4: 120, p5: 0, maxFree: 242 },
+            { id: 5, brand: "Stella Artois", code: "BSTEADR20L-J", descEn: "Stella Artois Draught", descZh: "時代生啤酒", p1: 70, p2: 120, p3: 70, p4: 120, p5: 0, maxFree: 242 }
+        ];
+
+        // FULL I18N DICTIONARIES
+        const I18N = {
+            en: {
+                title: "Sands Cultural Carnival - Hoi Kuen",
+                accessTitle: "Event Access Required",
+                accessSubtitle: "Enter password and your name to log sales.",
+                lblPassword: "Access Password",
+                lblUserName: "Your Name / Staff ID",
+                btnLogin: "Enter System",
+                exportReport: "Export Report",
+                filterTitle: "Product Filter",
+                resetFilters: "Reset Filters",
+                lblBrand: "Brand",
+                allBrands: "All Brands",
+                productList: "Product Catalog",
+                selectType: "Select Transaction Type",
+                typeP1: "Std Single Cup 500ml",
+                typeP2: "Std 2-Cups Offer 500ml",
+                typeP3: "VIP Single Cup 500ml",
+                typeP4: "VIP 2-Cups Offer 500ml",
+                typeP5: "FREE 330ml",
+                qty: "Quantity",
+                btnConfirmSale: "Confirm Log Entry",
+                close: "Close",
+                voided: "VOIDED",
+                voidBtn: "Void Record",
+                badgeP1: "Std Single",
+                badgeP2: "Std 2 Cups",
+                badgeP3: "VIP Single",
+                badgeP4: "VIP 2 Cups",
+                badgeFree: "FREE",
+                labelP1P2: "Single: MOP 50 | 2-Cups: MOP 85",
+                labelP1P2_70: "Single: MOP 70 | 2-Cups: MOP 120",
+                freeProgress: "FREE Qty Progress:",
+                exceededBy: "Exceeded by",
+                cups: "cups",
+                remaining: "Remaining:",
+                accumulatedTotal: "Accumulated Total:"
+            },
+            zh: {
+                title: "金沙文化嘉年華 - 凱權",
+                accessTitle: "需要存取密碼",
+                accessSubtitle: "請輸入指定密碼及工作人員名字以進行點數記錄",
+                lblPassword: "存取密碼",
+                lblUserName: "使用者名字 / 員工名稱",
+                btnLogin: "進入系統",
+                exportReport: "導出 Excel 報告",
+                filterTitle: "產品目錄篩選",
+                resetFilters: "重置篩選",
+                lblBrand: "品牌",
+                allBrands: "所有品牌",
+                productList: "產品清單",
+                selectType: "選擇交易類型",
+                typeP1: "一般顧客單杯 500ml",
+                typeP2: "一般顧客兩杯優惠 500ml",
+                typeP3: "VIP 單杯 500ml",
+                typeP4: "VIP 兩杯優惠 500ml",
+                typeP5: "FREE 330ml",
+                qty: "數量",
+                btnConfirmSale: "確認記錄",
+                close: "關閉",
+                voided: "已作廢/已刪除",
+                voidBtn: "作廢此筆交易",
+                badgeP1: "一般單杯",
+                badgeP2: "一般兩杯",
+                badgeP3: "VIP單杯",
+                badgeP4: "VIP兩杯",
+                badgeFree: "FREE",
+                labelP1P2: "單杯: MOP 50 | 兩杯: MOP 85",
+                labelP1P2_70: "單杯: MOP 70 | 兩杯: MOP 120",
+                freeProgress: "贈送進度 (FREE Qty):",
+                exceededBy: "已超出上限",
+                cups: "杯",
+                remaining: "剩餘可送:",
+                accumulatedTotal: "累積銷售額:"
+            }
+        };
+
+        let currentLang = 'en';
+        let currentUser = '';
+        let selectedProduct = null;
+        let activeSaleType = 'p1';
+        let selectedQty = 1;
+
+        let selectedBrandFilter = '';
+
+        // Local Storage / Memory Fallback Keys
+        const STORAGE_KEY_USER = 'seapower_event_user';
+        const STORAGE_KEY_SALES = 'seapower_event_sales_fallback';
+
+        // Firebase Configuration
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'seapower-event-app-default';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyBiQt0F16z9J-PNLNpDYVjK9MIkwdY2kSI",
+            authDomain: "whisky-shine-2026-sales-track.firebaseapp.com",
+            projectId: "whisky-shine-2026-sales-track",
+            storageBucket: "whisky-shine-2026-sales-track.firebasestorage.app",
+            messagingSenderId: "50120901554",
+            appId: "1:50120901554:web:27bed8995f4892599b9aab",
+            measurementId: "G-53EKX16KKB"
+        };
+
+        let db = null;
+        let auth = null;
+        let salesRecords = [];
+        let isFirebaseConnected = false;
+
+        // Toast Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+
+        // PREVENT DOUBLE-TAP ZOOM FOR MOBILE DEVICES
+        function preventDoubleTapZoom() {
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function (event) {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+        }
+
+        // INIT & AUTH LOGIC
+        window.addEventListener('DOMContentLoaded', async () => {
+            preventDoubleTapZoom();
+
+            // Check stored session
+            const savedUser = localStorage.getItem(STORAGE_KEY_USER);
+            if (savedUser) {
+                currentUser = savedUser;
+                showMainInterface();
+            }
+
+            // Initialize Firebase with fallback
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    try {
+                        await signInAnonymously(auth);
+                    } catch (authErr) {
+                        console.warn("Firebase Anonymous Auth is disabled or restricted. Falling back to local mode.", authErr);
+                        loadLocalSalesFallback();
+                        renderBrandPills();
+                        return;
+                    }
+                }
+
+                // Listen to Firestore Realtime Updates
+                const salesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'sales_records');
+                onSnapshot(salesColRef, (snapshot) => {
+                    salesRecords = [];
+                    snapshot.forEach(doc => {
+                        salesRecords.push({ id: doc.id, ...doc.data() });
+                    });
+                    isFirebaseConnected = true;
+                    renderProductList();
+                }, (error) => {
+                    console.warn("Firestore listener error, using fallback state:", error);
+                    loadLocalSalesFallback();
+                });
+            } catch (err) {
+                console.warn("Firebase initialization skipped/failed. Running offline mode:", err);
+                loadLocalSalesFallback();
+            }
+
+            renderBrandPills();
+            renderProductList();
+            setupEventListeners();
+        });	
+
+        function showMainInterface() {
+            document.getElementById('display-user-name').innerText = currentUser;
+            document.getElementById('user-badge').classList.remove('hidden');
+            document.getElementById('user-badge').classList.add('flex');
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('pos-screen').classList.remove('hidden');
+            document.getElementById('btn-export').classList.remove('hidden');
+            document.getElementById('btn-clear').classList.remove('hidden');
+            document.getElementById('btn-logout').classList.remove('hidden');
+        }
+
+        function handleLogout() {
+            currentUser = '';
+            localStorage.removeItem(STORAGE_KEY_USER);
+            
+            document.getElementById('display-user-name').innerText = '';
+            document.getElementById('user-badge').classList.add('hidden');
+            document.getElementById('user-badge').classList.remove('flex');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('pos-screen').classList.add('hidden');
+            document.getElementById('btn-export').classList.add('hidden');
+            document.getElementById('btn-clear').classList.add('hidden');
+            document.getElementById('btn-logout').classList.add('hidden');
+
+            document.getElementById('input-pass').value = '';
+            showToast('Logged out successfully / 已成功登出');
+        }
+
+        // CLEAR ALL RECORDS FUNCTIONALITY
+        async function handleClearAllData() {
+            const enteredPass = prompt('請輸入清除記錄密碼 / Enter clear password:');
+            if (enteredPass === null) return;
+
+            if (enteredPass.trim() !== '1235789') {
+                showToast('密碼錯誤，無法清除 / Incorrect password!');
+                return;
+            }
+
+            const doubleConfirm = confirm('⚠️ 警告：這將會永久刪除所有銷售記錄及作廢記錄，且無法復原！\n確定要全部清除嗎？');
+            if (!doubleConfirm) return;
+
+            try {
+                if (isFirebaseConnected && db) {
+                    const salesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'sales_records');
+                    const snapshot = await getDocs(salesColRef);
+                    
+                    const deletePromises = snapshot.docs.map(document => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sales_records', document.id)));
+                    await Promise.all(deletePromises);
+                }
+
+                salesRecords = [];
+                saveLocalSalesFallback();
+                renderProductList();
+
+                showToast('所有記錄已成功清除 / All records cleared!');
+            } catch (err) {
+                console.error("Error clearing records:", err);
+                showToast('清除記錄失敗 / Failed to clear records.');
+            }
+        }
+
+        function loadLocalSalesFallback() {
+            try {
+                const localData = localStorage.getItem(STORAGE_KEY_SALES);
+                salesRecords = localData ? JSON.parse(localData) : [];
+            } catch (e) {
+                salesRecords = [];
+            }
+            renderProductList();
+        }
+
+        function saveLocalSalesFallback() {
+            try {
+                localStorage.setItem(STORAGE_KEY_SALES, JSON.stringify(salesRecords));
+            } catch (e) {
+                console.error("Local storage save error", e);
+            }
+        }
+
+        // LANGUAGE TOGGLE
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('btn-lang').innerText = lang === 'en' ? '繁體中文' : 'English';
+            document.getElementById('header-title').innerText = I18N[lang].title;
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (I18N[lang] && I18N[lang][key]) {
+                    el.innerText = I18N[lang][key];
+                }
+            });
+
+            renderBrandPills();
+            renderProductList();
+        }
+
+        // RENDER SINGLE-LEVEL BRAND FILTER PILLS
+        function renderBrandPills() {
+            const brandContainer = document.getElementById('brand-pills');
+            const brands = [...new Set(BEER_DATA.map(item => item.brand))];
+
+            let brandHtml = `
+                <button type="button" onclick="selectBrandFilter('')" class="pill-btn touch-btn text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-sm border ${selectedBrandFilter === '' ? 'bg-amber-600 text-white border-amber-600 shadow-md' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'}">
+                    ${I18N[currentLang].allBrands}
+                </button>
+            `;
+
+            brands.forEach(b => {
+                const isSelected = selectedBrandFilter === b;
+                brandHtml += `
+                    <button type="button" onclick="selectBrandFilter('${b}')" class="pill-btn touch-btn text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-sm border ${isSelected ? 'bg-amber-600 text-white border-amber-600 shadow-md' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'}">
+                        ${b}
+                    </button>
+                `;
+            });
+            brandContainer.innerHTML = brandHtml;
+        }
+
+        window.selectBrandFilter = function(b) {
+            selectedBrandFilter = b;
+            renderBrandPills();
+            renderProductList();
+            toggleResetButton();
+        };
+
+        // RENDER PRODUCTS WITH REALTIME AGGREGATED TOTALS & FREE BUDGET PROGRESS
+        function renderProductList() {
+            const container = document.getElementById('product-list-container');
+            if (!container) return;
+
+            const searchInput = document.getElementById('input-search');
+            const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+            const filtered = BEER_DATA.filter(item => {
+                if (selectedBrandFilter && item.brand !== selectedBrandFilter) return false;
+                if (search) {
+                    const matchCode = item.code.toLowerCase().includes(search);
+                    const matchEn = item.descEn.toLowerCase().includes(search);
+                    const matchZh = item.descZh.toLowerCase().includes(search);
+                    if (!matchCode && !matchEn && !matchZh) return false;
+                }
+                return true;
+            });
+
+            document.getElementById('product-count').innerText = `${filtered.length} items`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-slate-400 font-semibold text-sm">No matching products found.</div>`;
+                return;
+            }
+
+            const activeLogs = salesRecords.filter(r => !r.isVoided);
+            const dict = I18N[currentLang];
+
+            container.innerHTML = filtered.map(item => {
+                const itemLogs = activeLogs.filter(r => r.code === item.code);
+                let cP1 = 0, cP2 = 0, cP3 = 0, cP4 = 0, cP5 = 0;
+
+                itemLogs.forEach(l => {
+                    const q = l.qty || 1;
+                    if (l.type === 'p1') cP1 += q;
+                    if (l.type === 'p2') cP2 += q;
+                    if (l.type === 'p3') cP3 += q;
+                    if (l.type === 'p4') cP4 += q;
+                    if (l.type === 'p5') cP5 += q;
+                });
+
+                const totalVal = (cP1 * item.p1) + (cP2 * item.p2) + (cP3 * item.p3) + (cP4 * item.p4) + (cP5 * item.p5);
+
+                const displayName = currentLang === 'en' ? item.descEn : item.descZh;
+
+                // Free Qty Progress Calculations
+                const freeGiven = cP5;
+                const maxFree = item.maxFree || 0;
+                const freeRemaining = maxFree - freeGiven;
+                const isOverLimit = freeGiven > maxFree;
+
+                const priceText = item.p1 === 50 ? dict.labelP1P2 : dict.labelP1P2_70;
+
+                return `
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm hover:shadow-md flex flex-col justify-between space-y-3.5 transition">
+                        <div class="flex justify-between items-start space-x-3">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md">
+                                        #${item.id} · ${item.code}
+                                    </span>
+                                    <span class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md">${item.brand}</span>
+                                </div>
+                                <h3 class="text-base font-extrabold text-slate-900 mt-2 leading-snug">${displayName}</h3>
+                                
+                                <div class="flex flex-wrap gap-1.5 mt-2 text-[11px] font-bold text-slate-600">
+                                    <span class="bg-amber-50 text-amber-900 border border-amber-100 px-2 py-0.5 rounded-md">${priceText}</span>
+                                    <span class="bg-emerald-50 text-emerald-800 border border-emerald-100 px-2 py-0.5 rounded-md">FREE: MOP ${item.p5}</span>
+                                </div>
+                            </div>
+                            
+                            <button onclick="openHistoryModal('${item.code}')" class="text-slate-500 hover:text-amber-700 p-2 touch-btn flex flex-col items-center justify-center bg-slate-50 hover:bg-amber-50 rounded-xl border border-slate-200">
+                                <i class="fa-solid fa-clock-rotate-left text-base"></i>
+                                <span class="text-[10px] mt-0.5 font-bold">Log</span>
+                            </button>
+                        </div>
+
+                        <!-- FREE QTY TRACKER BANNER (I18N fully translated) -->
+                        <div class="p-2.5 rounded-xl border text-xs font-bold ${isOverLimit ? 'bg-red-50 border-red-200 text-red-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'} flex items-center justify-between">
+                            <div class="flex items-center space-x-1.5">
+                                <i class="fa-solid ${isOverLimit ? 'fa-triangle-exclamation text-red-600' : 'fa-gift text-emerald-600'} text-sm"></i>
+                                <span>${dict.freeProgress}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-black text-sm ${isOverLimit ? 'text-red-700' : 'text-emerald-700'}">${freeGiven} / ${maxFree}</span>
+                                <span class="text-[10px] block font-semibold ${isOverLimit ? 'text-red-600' : 'text-emerald-600'}">
+                                    ${isOverLimit ? `${dict.exceededBy} ${Math.abs(freeRemaining)} ${dict.cups}` : `${dict.remaining} ${freeRemaining} ${dict.cups}`}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Sales Counter Badges -->
+                        <div class="grid grid-cols-5 gap-1.5 text-center bg-slate-50 p-2 rounded-xl border border-slate-200">
+                            <div class="bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
+                                <span class="block text-[9px] text-slate-500 font-bold truncate">${dict.badgeP1}</span>
+                                <span class="text-xs font-black text-amber-600">${cP1}</span>
+                            </div>
+                            <div class="bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
+                                <span class="block text-[9px] text-slate-500 font-bold truncate">${dict.badgeP2}</span>
+                                <span class="text-xs font-black text-amber-600">${cP2}</span>
+                            </div>
+                            <!-- VIP 欄位以尊爵紫標記區隔 -->
+                            <div class="bg-purple-50/60 p-1 rounded-lg border border-purple-200 shadow-sm">
+                                <span class="block text-[9px] text-purple-700 font-bold truncate">${dict.badgeP3}</span>
+                                <span class="text-xs font-black text-purple-700">${cP3}</span>
+                            </div>
+                            <div class="bg-purple-50/60 p-1 rounded-lg border border-purple-200 shadow-sm">
+                                <span class="block text-[9px] text-purple-700 font-bold truncate">${dict.badgeP4}</span>
+                                <span class="text-xs font-black text-purple-700">${cP4}</span>
+                            </div>
+                            <div class="bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
+                                <span class="block text-[9px] text-slate-500 font-bold truncate">${dict.badgeFree}</span>
+                                <span class="text-xs font-black ${isOverLimit ? 'text-red-600' : 'text-emerald-600'}">${cP5}</span>
+                            </div>
+                        </div>
+
+                        <!-- Price Info & Quick Action Button -->
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="text-xs font-medium">
+                                <span class="text-slate-500">${dict.accumulatedTotal}</span>
+                                <span class="text-amber-800 font-black text-base ml-1">MOP ${totalVal.toLocaleString()}</span>
+                            </div>
+                            <button onclick="openSaleModal('${item.code}')" class="bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition flex items-center space-x-1.5 touch-btn">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                                <span>Log Sale</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // EVENT LISTENERS SETUP
+        function setupEventListeners() {
+            document.getElementById('form-auth').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const pass = document.getElementById('input-pass').value.trim();
+                const name = document.getElementById('input-name').value.trim();
+
+                if (pass !== '9875321') {
+                    showToast('Incorrect password / 密碼錯誤!');
+                    return;
+                }
+
+                if (!name) {
+                    showToast('Please enter your name / 請輸入名字');
+                    return;
+                }
+
+                currentUser = name;
+                localStorage.setItem(STORAGE_KEY_USER, name);
+
+                showMainInterface();
+                showToast(`Welcome ${name}!`);
+            });
+
+            document.getElementById('btn-logout').addEventListener('click', () => {
+                handleLogout();
+            });
+
+            document.getElementById('btn-clear').addEventListener('click', () => {
+                handleClearAllData();
+            });
+
+            document.getElementById('btn-lang').addEventListener('click', () => {
+                setLanguage(currentLang === 'en' ? 'zh' : 'en');
+            });
+
+            document.getElementById('input-search').addEventListener('input', () => {
+                renderProductList();
+                toggleResetButton();
+            });
+
+            document.getElementById('btn-reset-filters').addEventListener('click', () => {
+                selectedBrandFilter = '';
+                document.getElementById('input-search').value = '';
+                renderBrandPills();
+                renderProductList();
+                toggleResetButton();
+            });
+
+            document.getElementById('btn-export').addEventListener('click', exportToExcel);
+        }
+
+        function toggleResetButton() {
+            const search = document.getElementById('input-search').value;
+            const resetBtn = document.getElementById('btn-reset-filters');
+
+            if (selectedBrandFilter || search) {
+                resetBtn.classList.remove('hidden');
+            } else {
+                resetBtn.classList.add('hidden');
+            }
+        }
+
+        // SALE MODAL FUNCTIONS
+        window.openSaleModal = function(code) {
+            selectedProduct = BEER_DATA.find(p => p.code === code);
+            if (!selectedProduct) return;
+
+            activeSaleType = 'p1';
+            selectedQty = 1;
+
+            document.getElementById('modal-sale-code').innerText = selectedProduct.code;
+            document.getElementById('modal-sale-title').innerText = currentLang === 'en' ? selectedProduct.descEn : selectedProduct.descZh;
+
+            document.getElementById('price-label-p1').innerText = `MOP ${selectedProduct.p1}`;
+            document.getElementById('price-label-p2').innerText = `MOP ${selectedProduct.p2}`;
+            document.getElementById('price-label-p3').innerText = `MOP ${selectedProduct.p3}`;
+            document.getElementById('price-label-p4').innerText = `MOP ${selectedProduct.p4}`;
+            document.getElementById('price-label-p5').innerText = `MOP ${selectedProduct.p5}`;
+
+            document.getElementById('modal-sale-qty').value = selectedQty;
+
+            selectSaleType('p1');
+            document.getElementById('modal-sale').classList.remove('hidden');
+        };
+
+        window.closeSaleModal = function() {
+            document.getElementById('modal-sale').classList.add('hidden');
+        };
+
+        // 選取交易類型：VIP 按鈕加強紫金色顯著高亮
+        window.selectSaleType = function(type) {
+            activeSaleType = type;
+
+            document.querySelectorAll('.sale-type-btn').forEach(btn => {
+                btn.classList.remove('border-amber-600', 'bg-amber-50/80', 'ring-2', 'ring-amber-500');
+                btn.classList.remove('border-purple-600', 'bg-purple-100', 'ring-2', 'ring-purple-500');
+                
+                if (btn.id === 'type-p3' || btn.id === 'type-p4') {
+                    btn.classList.add('border-purple-200', 'bg-purple-50/50');
+                } else {
+                    btn.classList.add('border-slate-200', 'bg-slate-50');
+                }
+            });
+
+            const activeBtn = document.getElementById(`type-${type}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-slate-200', 'bg-slate-50', 'border-purple-200', 'bg-purple-50/50');
+                
+                if (type === 'p3' || type === 'p4') {
+                    activeBtn.classList.add('border-purple-600', 'bg-purple-100', 'ring-2', 'ring-purple-500');
+                } else {
+                    activeBtn.classList.add('border-amber-600', 'bg-amber-50/80', 'ring-2', 'ring-amber-500');
+                }
+            }
+        };
+
+        window.onQtyInputChange = function(val) {
+            let num = parseInt(val, 10);
+            if (isNaN(num) || num < 1) num = 1;
+            selectedQty = num;
+            document.getElementById('modal-sale-qty').value = selectedQty;
+        };
+
+        window.adjustModalQty = function(delta) {
+            selectedQty = Math.max(1, selectedQty + delta);
+            document.getElementById('modal-sale-qty').value = selectedQty;
+        };
+
+        window.submitSaleRecord = async function() {
+            if (!selectedProduct) return;
+
+            const inputVal = parseInt(document.getElementById('modal-sale-qty').value, 10);
+            selectedQty = (isNaN(inputVal) || inputVal < 1) ? 1 : inputVal;
+
+            const record = {
+                code: selectedProduct.code,
+                productEn: selectedProduct.descEn,
+                productZh: selectedProduct.descZh,
+                type: activeSaleType,
+                qty: selectedQty,
+                user: currentUser,
+                timestamp: new Date().toISOString(),
+                isVoided: false
+            };
+
+            try {
+                if (isFirebaseConnected && db) {
+                    const salesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'sales_records');
+                    await addDoc(salesColRef, record);
+                } else {
+                    record.id = 'loc_' + Date.now();
+                    salesRecords.push(record);
+                    saveLocalSalesFallback();
+                    renderProductList();
+                }
+                showToast('Sale logged successfully / 記錄成功!');
+            } catch (err) {
+                console.error("Error saving sale record:", err);
+                showToast('Failed to save record.');
+            }
+
+            closeSaleModal();
+        };
+
+        // ITEM HISTORY & VOID MODAL
+        window.openHistoryModal = function(code) {
+            const product = BEER_DATA.find(p => p.code === code);
+            if (!product) return;
+
+            document.getElementById('modal-hist-title').innerText = currentLang === 'en' ? product.descEn : product.descZh;
+            document.getElementById('modal-hist-subtitle').innerText = `Code: ${product.code}`;
+
+            const listContainer = document.getElementById('modal-hist-list');
+            const itemLogs = salesRecords.filter(r => r.code === code).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const dict = I18N[currentLang];
+
+            if (itemLogs.length === 0) {
+                listContainer.innerHTML = `<p class="text-center text-slate-400 py-8 text-sm">No transaction records yet.</p>`;
+            } else {
+                listContainer.innerHTML = itemLogs.map(log => {
+                    const dateStr = new Date(log.timestamp).toLocaleString();
+                    const isVoid = log.isVoided;
+
+                    let typeLabel = log.type;
+                    if (log.type === 'p1') typeLabel = dict.typeP1;
+                    if (log.type === 'p2') typeLabel = dict.typeP2;
+                    if (log.type === 'p3') typeLabel = dict.typeP3;
+                    if (log.type === 'p4') typeLabel = dict.typeP4;
+                    if (log.type === 'p5') typeLabel = dict.typeP5;
+
+                    return `
+                        <div class="border rounded-2xl p-3.5 ${isVoid ? 'bg-slate-100 border-slate-200 opacity-60' : 'bg-slate-50 border-slate-200'} flex justify-between items-center text-xs">
+                            <div>
+                                <div class="font-extrabold ${isVoid ? 'text-slate-500 line-through' : 'text-slate-900'} text-sm">
+                                    ${typeLabel} x ${log.qty || 1}
+                                </div>
+                                <div class="text-slate-500 font-medium mt-0.5">By: <span class="font-bold text-slate-700">${log.user}</span> · ${dateStr}</div>
+                                ${isVoid ? `<div class="text-red-600 font-bold text-[10px] mt-1"><i class="fa-solid fa-ban mr-1"></i>Voided by ${log.voidedBy || 'system'}</div>` : ''}
+                            </div>
+                            ${!isVoid ? `
+                                <button onclick="voidRecord('${log.id}')" class="bg-red-50 hover:bg-red-100 text-red-700 font-bold border border-red-200 px-3 py-1.5 rounded-xl touch-btn">
+                                    ${dict.voidBtn}
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('modal-history').classList.remove('hidden');
+        };
+
+        window.closeHistoryModal = function() {
+            document.getElementById('modal-history').classList.add('hidden');
+        };
+
+        window.voidRecord = async function(docId) {
+            if (!confirm('Are you sure you want to void this transaction? / 確定要作廢此筆記錄嗎？')) return;
+
+            try {
+                if (isFirebaseConnected && db) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'sales_records', docId);
+                    await updateDoc(docRef, {
+                        isVoided: true,
+                        voidedBy: currentUser,
+                        voidedAt: new Date().toISOString()
+                    });
+                } else {
+                    const idx = salesRecords.findIndex(r => r.id === docId);
+                    if (idx !== -1) {
+                        salesRecords[idx].isVoided = true;
+                        salesRecords[idx].voidedBy = currentUser;
+                        salesRecords[idx].voidedAt = new Date().toISOString();
+                        saveLocalSalesFallback();
+                        renderProductList();
+                    }
+                }
+                showToast('Transaction voided / 記錄已作廢');
+                closeHistoryModal();
+            } catch (err) {
+                console.error("Error voiding record:", err);
+                showToast('Failed to void record.');
+            }
+        };
+
+        // EXCEL REPORT GENERATOR (WITH RAW TRANSACTION LOGS WORKSHEET)
+        function exportToExcel() {
+            const activeLogs = salesRecords.filter(r => !r.isVoided);
+
+            // 1. Summary Worksheet Rows
+            const reportRows = BEER_DATA.map(item => {
+                const itemLogs = activeLogs.filter(r => r.code === item.code);
+
+                let cP1 = 0, cP2 = 0, cP3 = 0, cP4 = 0, cP5 = 0;
+
+                itemLogs.forEach(l => {
+                    const q = l.qty || 1;
+                    if (l.type === 'p1') cP1 += q;
+                    if (l.type === 'p2') cP2 += q;
+                    if (l.type === 'p3') cP3 += q;
+                    if (l.type === 'p4') cP4 += q;
+                    if (l.type === 'p5') cP5 += q;
+                });
+
+                const totalRevenue = (cP1 * item.p1) + (cP2 * item.p2) + (cP3 * item.p3) + (cP4 * item.p4) + (cP5 * item.p5);
+
+                return {
+                    "序號": item.id,
+                    "code": item.code,
+                    "Description - EN": item.descEn,
+                    "Description - CH": item.descZh,
+                    "一般顧客單杯 500ml": cP1,
+                    "一般顧客兩杯優惠 500ml": cP2,
+                    "VIP 單杯 500ml": cP3,
+                    "VIP 兩杯優惠 500ml": cP4,
+                    "FREE 330ml": cP5,
+                    "Max. FREE Qty": item.maxFree,
+                    "FREE 剩餘額度": item.maxFree - cP5,
+                    "總銷售金額(MOP)": totalRevenue
+                };
+            });
+
+            // 2. Raw Transaction Logs Worksheet Rows
+            const rawLogsRows = salesRecords.map(log => {
+                const product = BEER_DATA.find(p => p.code === log.code) || {};
+                const dateObj = new Date(log.timestamp);
+                const dateStr = !isNaN(dateObj) ? dateObj.toLocaleDateString() : '';
+                const timeStr = !isNaN(dateObj) ? dateObj.toLocaleTimeString() : '';
+
+                let typeLabelName = log.type;
+                let unitPrice = 0;
+                if (log.type === 'p1') { typeLabelName = '一般顧客單杯 (500ml)'; unitPrice = product.p1 || 0; }
+                if (log.type === 'p2') { typeLabelName = '一般顧客兩杯優惠 (500ml)'; unitPrice = product.p2 || 0; }
+                if (log.type === 'p3') { typeLabelName = 'VIP 單杯 (500ml)'; unitPrice = product.p3 || 0; }
+                if (log.type === 'p4') { typeLabelName = 'VIP 兩杯優惠 (500ml)'; unitPrice = product.p4 || 0; }
+                if (log.type === 'p5') { typeLabelName = 'FREE 330ml'; unitPrice = product.p5 || 0; }
+
+                const qty = log.qty || 1;
+                const totalAmount = unitPrice * qty;
+
+                return {
+                    "日期": dateStr,
+                    "時間": timeStr,
+                    "使用者/員工": log.user || '',
+                    "產品代碼": log.code,
+                    "銷售產品 (EN)": log.productEn || product.descEn || '',
+                    "銷售產品 (CH)": log.productZh || product.descZh || '',
+                    "交易類型": typeLabelName,
+                    "數量": qty,
+                    "單價 (MOP)": unitPrice,
+                    "總金額 (MOP)": totalAmount,
+                    "狀態": log.isVoided ? "已作廢 (Voided)" : "有效 (Active)"
+                };
+            });
+
+            const workbook = XLSX.utils.book_new();
+
+            // Add Summary Sheet
+            const summarySheet = XLSX.utils.json_to_sheet(reportRows);
+            XLSX.utils.book_append_sheet(workbook, summarySheet, "Sales Summary");
+
+            // Add Raw Transaction Logs Sheet
+            const rawLogsSheet = XLSX.utils.json_to_sheet(rawLogsRows);
+            XLSX.utils.book_append_sheet(workbook, rawLogsSheet, "Transaction Logs");
+
+            const timestamp = new Date().toISOString().slice(0,10);
+            XLSX.writeFile(workbook, `Sands_Carnival_HoiKuen_Sales_Report_${timestamp}.xlsx`);
+            showToast('Excel report downloaded / 報告導出成功!');
+        }
+    </script>
+</body>
+</html>
